@@ -4,6 +4,7 @@ class Subject:
     def __init__(self, user: User, subject_name):
         self.user = user
         self.subject_name = subject_name
+    
 
     def add_subject(self, total_chapters, current_chapter, studied_mins=0) -> dict:
         if self.user.get_current_user(): 
@@ -37,7 +38,7 @@ class Subject:
             print("User not found")
             return {"successful": False, "message": "User not found"}
 
-    def get_user_subjects(self) -> dict:
+    def get_all_subjects(self) -> dict:
         if self.user.get_current_user():
             try:
                 self.user.cursor.execute(
@@ -61,3 +62,34 @@ class Subject:
         else:
             print("User not found")
             return {"successful": False, "message": "User not found"}
+
+    def get_subject(self) -> dict:
+      """Retrieve this subject details."""
+      if self.user.get_current_user():
+          try:
+              self.user.cursor.execute(
+                  'SELECT subject_name, current_chapter, total_chapters, studied_mins, subject_id FROM subjects WHERE user_id = %s AND subject_name = %s',
+                  (self.user.get_current_user().id, self.subject_name)
+              )
+              subject = self.user.cursor.fetchone()
+
+              if subject:
+                  return {
+                      "successful": True,
+                      "subject": {
+                          "subject_name": subject[0],
+                          "current_chapter": subject[1],
+                          "total_chapters": subject[2],
+                          "studied_mins": subject[3],
+                          "subject_id": subject[4]
+                      }
+                  }
+              else:
+                  return {"successful": False, "message": "Subject not found"}
+
+          except Exception as e:
+              print("Error fetching subject:", str(e))
+              return {"successful": False, "message": str(e)}
+      else:
+          print("User not found")
+          return {"successful": False, "message": "User not found"}
