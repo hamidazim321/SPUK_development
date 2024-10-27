@@ -1,2 +1,3 @@
 secret.key
 encrypted_password.bin
+__pycache__
