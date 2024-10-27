@@ -6,11 +6,11 @@ class User(Database):
         super().__init__() 
         self.name = name
         self.password = password
+        self.id = None
 
     def get_user(self) -> dict:
         """Retrieve a user based on username and verify the password."""
         try:
-            # Fetch user by username
             self.cursor.execute(
                 "SELECT user_id, username, password_digest FROM users WHERE username = %s",
                 (self.name,)
@@ -21,9 +21,13 @@ class User(Database):
                 password_digest = bytes(user[2]) if isinstance(user[2], memoryview) else user[2]
                 
                 if verify_password(password_digest, self.password):
+                    self.id = user[0]
+                    self.set_current_user(self) 
                     return {"successful": True, "user_id": user[0], "username": user[1]}
                 else:
                     return {"successful": False, "message": "incorrect password or username"}
+            else:
+                return {"successful": False, "message": "user not found"}
 
         except Exception as e:
             print(f"Error fetching user: {e}")
@@ -37,7 +41,8 @@ class User(Database):
                 'INSERT INTO users (username, password_digest) VALUES (%s, %s)',
                 (self.name, hashed_password)
             )
-            self.commit() 
+            self.commit()
+            self.get_user()  
             return {
                 "successful": True,
                 "message": None
@@ -51,15 +56,14 @@ class User(Database):
     
     def delete_user(self) -> dict:
         """Delete a user based on username and password."""
-        user_check = self.get_user()  
-        
-        if user_check.get("successful"):
+        if self.get_current_user():
             try:
                 self.cursor.execute(
                     "DELETE FROM users WHERE user_id = %s", 
-                    (user_check["user_id"],)
+                    (self.id,) 
                 )
                 self.commit()
+                self.remove_current_user()
 
                 return {
                     "successful": True,
@@ -77,3 +81,6 @@ class User(Database):
                 "successful": False,
                 "message": "User not found."
             }
+    
+    def logout_user(self):
+        self.remove_current_user()
