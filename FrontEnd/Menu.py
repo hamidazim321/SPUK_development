@@ -1,33 +1,35 @@
 import tkinter as tk
 from tkinter import Frame
-from LoginPage import LoginPage
-from RegistrationPage import RegistrationPage
-from StartSessionPage import StartSessionPage
-from ViewSubjectsPage import ViewSubjectsPage
 
 class Menu(Frame):
-    def __init__(self, master, show_frame_callback):
+    def __init__(self, master, state_manager, show_frame_callback, pages):
         super().__init__(master)
         self.show_frame_callback = show_frame_callback
+        self.state_manager = state_manager
+        self.pages = pages
+        self.state = self.state_manager.get_state()
+
+        self.load_menu(self.pages)
+
+        self.state_manager.subscribe(self.update_menu)
+
+    def create_button(self, page_name, page_class):
+        btn = tk.Button(self, text=page_name, command=lambda: self.show_frame_callback(page_class))
+        return btn
+    
+    def load_menu(self, pages):
+        self.state_manager.get_state()
+        for widget in self.winfo_children():
+            widget.destroy()
         
-        self.create_buttons()
-
-    def create_buttons(self):
-
-        login_button = tk.Button(self, text="Login", command=lambda: self.show_frame_callback(LoginPage))
-        login_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-        register_button = tk.Button(self, text="Register", command=lambda: self.show_frame_callback(RegistrationPage))
-        register_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-        view_subjects_button = tk.Button(self, text="View Subjects", command=lambda: self.show_frame_callback(ViewSubjectsPage))
-        view_subjects_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-        start_session_button = tk.Button(self, text="Start Session", command=lambda: self.show_frame_callback(StartSessionPage))
-        start_session_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-        logout_button = tk.Button(self, text="Logout", command=self.logout)
-        logout_button.pack(side=tk.LEFT, padx=5, pady=5)
+        if self.state["is_logged_in"]:
+            tk.Button(self, text="log out", command=lambda: self.show_frame_callback("HomePage")).pack(side=tk.LEFT, padx=5, pady=5)
+        for p in pages:
+            btn = self.create_button(p["name"], p["page"])
+            btn.pack(side=tk.LEFT, padx=5, pady=5)
+    
+    def update_menu(self, state):
+        self.load_menu(self.pages)
 
     def logout(self):
         print("User logged out")  
