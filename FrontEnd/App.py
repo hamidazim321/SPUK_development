@@ -19,8 +19,6 @@ class App(tk.Tk):
 
         # pages
         self.pages = [
-            {"page": LoginPage, "name": "Login"},
-            {"page": RegistrationPage, "name": "Sign Up"},
             {"page": ViewSubjectsPage, "name": "Subjects"},
             {"page": StartSessionPage, "name": "Sessions"},
         ]

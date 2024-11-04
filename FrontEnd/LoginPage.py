@@ -5,7 +5,7 @@ class LoginPage(Frame):
     def __init__(self, master, state_manager):
         super().__init__(master)
         self.state_manager = state_manager
-        self.user = user = self.state_manager.get_state()["user"]
+        self.user = self.state_manager.get_state()["user"]
         self.load_page()
     
     def load_page(self):
