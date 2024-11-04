@@ -16,6 +16,7 @@ class App(tk.Tk):
 
         # State Management
         self.state_manager = StateManager()
+        self.state_manager.subscribe(self.load_home_page)
 
         # pages
         self.pages = [
@@ -27,9 +28,9 @@ class App(tk.Tk):
         self.menu = Menu(self, self.state_manager, self.show_frame, self.pages)
         self.menu.pack(side="top", fill='x')
 
-        # Display the initial frame
+        # initialize home page
         self.current_frame = None
-        self.show_frame(LoginPage)  # Start with LoginPage
+        self.load_home_page(self.state_manager.get_state())
 
     def show_frame(self, page):
         # Destroy the current frame if it exists
@@ -41,7 +42,14 @@ class App(tk.Tk):
         
         # Pack the new frame
         self.current_frame.pack(fill='both', expand=True)
-        print("Page loaded:", page.__name__)  
+        print("Page loaded:", page.__name__)
+    
+    def load_home_page(self, state):
+        if state["is_logged_in"]:
+            self.show_frame(ViewSubjectsPage)
+        else:
+            self.show_frame(LoginPage)
+        
 
         
 

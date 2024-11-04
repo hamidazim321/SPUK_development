@@ -22,7 +22,6 @@ class Menu(Frame):
     
     def load_menu(self, pages):
         for widget in self.winfo_children():
-            print(widget.__class__.__name__, "destroyed")
             widget.destroy()
 
         if self.state["is_logged_in"]: 
@@ -41,13 +40,13 @@ class Menu(Frame):
 
             
     def update_menu(self, state):
-        self.state = self.state_manager.get_state()
-        if self.state["is_logged_in"] != self.current_login_status:
-            print("login status changed")
+        self.state = state
+        if state["is_logged_in"] != self.current_login_status:
             self.current_login_status = self.state["is_logged_in"]
             self.load_menu(self.pages)
 
     def logout(self):
-        print("User logged out")  
-        self.show_frame_callback(LoginPage)
+        self.state_manager.set_state({"is_logged_in": False})
+        self.state["user"].logout_user()
+
 
