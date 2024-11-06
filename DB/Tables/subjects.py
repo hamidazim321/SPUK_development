@@ -6,15 +6,22 @@ class Subject:
         self.subject_name = subject_name
     
 
-    def add_subject(self, total_chapters, current_chapter, studied_mins=0) -> dict:
+    def add_subject(self, total_chapters, current_chapter) -> dict:
         if self.user.get_current_user(): 
             try:
                 self.user.cursor.execute(
                     'INSERT INTO subjects (subject_name, user_id, total_chapters, current_chapter, studied_mins) VALUES (%s, %s, %s, %s, %s)',
-                    (self.subject_name, self.user.get_current_user().id, total_chapters, current_chapter, studied_mins)
+                    (self.subject_name, self.user.get_current_user().id, total_chapters, current_chapter, 0)
                 )
                 self.user.connection.commit()
-                return {"successful": True}
+                return {"successful": True, 
+                "subject": {
+                    "subject_name": self.subject_name,
+                    "current_chapter": current_chapter,
+                    "total_chapters": total_chapters,
+                    "studied_mins": 0
+                    }
+                }
             except Exception as e:
                 print("Error creating subject:", str(e))
                 return {"successful": False, "message": str(e)}

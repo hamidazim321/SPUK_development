@@ -4,7 +4,7 @@ from Menu import Menu
 from LoginPage import LoginPage
 from RegistrationPage import RegistrationPage
 from StartSessionPage import StartSessionPage
-from ViewSubjectsPage import ViewSubjectsPage
+from SubjectsPage import SubjectsPage
 from StateManager import StateManager
 
 
@@ -16,11 +16,12 @@ class App(tk.Tk):
 
         # State Management
         self.state_manager = StateManager()
-        self.state_manager.subscribe(self.load_home_page)
+        self.logged_in = self.state_manager.get_state()["is_logged_in"]
+        self.state_manager.subscribe(self.update_home_page)
 
         # pages
         self.pages = [
-            {"page": ViewSubjectsPage, "name": "Subjects"},
+            {"page": SubjectsPage, "name": "Subjects"},
             {"page": StartSessionPage, "name": "Sessions"},
         ]
 
@@ -30,7 +31,7 @@ class App(tk.Tk):
 
         # initialize home page
         self.current_frame = None
-        self.load_home_page(self.state_manager.get_state())
+        self.load_home_page()
 
     def show_frame(self, page):
         # Destroy the current frame if it exists
@@ -42,13 +43,20 @@ class App(tk.Tk):
         
         # Pack the new frame
         self.current_frame.pack(fill='both', expand=True)
-        print("Page loaded:", page.__name__)
     
-    def load_home_page(self, state):
-        if state["is_logged_in"]:
-            self.show_frame(ViewSubjectsPage)
+    def load_home_page(self):
+        if self.logged_in:
+            self.show_frame(SubjectsPage)
         else:
             self.show_frame(LoginPage)
+    
+    def update_home_page(self, state):
+        if self.logged_in == state["is_logged_in"]:
+            return
+        else:
+            self.logged_in = state["is_logged_in"]
+            self.load_home_page()
+
         
 
         

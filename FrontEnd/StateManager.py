@@ -10,6 +10,7 @@ class StateManager:
         self.__state = {
             "is_logged_in": False,
             "user": User("", ""),
+            "user_subjects": [],
         }
         self.subscribers = []
 
@@ -19,9 +20,10 @@ class StateManager:
     def notify(self):
         for callback in self.subscribers:
             try:
-                callback(self.__state)
+                callback(self.__state.copy())
             except Exception as e:
                 print(f"Error notifying callback: {e}")
+                print(callback)
 
     def set_state(self, new_state: dict):
         for key, value in new_state.items():
@@ -30,4 +32,4 @@ class StateManager:
         self.notify()
 
     def get_state(self) -> dict:
-        return self.__state
+        return self.__state.copy()
