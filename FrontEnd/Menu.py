@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import Frame
 from LoginPage import LoginPage
-from RegistrationPage import RegistrationPage
 
 class Menu(Frame):
     def __init__(self, master, state_manager, show_frame_callback, pages):

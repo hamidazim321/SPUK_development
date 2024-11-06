@@ -1,12 +1,17 @@
 import tkinter as tk
 from tkinter import Frame
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from DB.Tables.sessions import Session
 
 class SessionPage(Frame):
     def __init__(self, master, state_manager):
         super().__init__(master)
         self.state_manager = state_manager
-        self.load_page()
         self.state = self.state_manager.get_state()
+
+        self.load_page()
     
     def load_global_session(self):
         # Add a Session object to global state if its None
