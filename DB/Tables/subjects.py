@@ -23,6 +23,7 @@ class Subject:
                     }
                 }
             except Exception as e:
+                self.user.connection.rollback()
                 print("Error creating subject:", str(e))
                 return {"successful": False, "message": str(e)}
         else:
@@ -39,6 +40,7 @@ class Subject:
                 self.user.connection.commit()
                 return {"successful": True}
             except Exception as e:
+                self.user.connection.rollback()
                 print("Error removing subject:", str(e))
                 return {"successful": False, "message": str(e)}
         else:

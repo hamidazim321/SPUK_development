@@ -3,7 +3,7 @@ from tkinter import Frame
 from Menu import Menu
 from LoginPage import LoginPage
 from RegistrationPage import RegistrationPage
-from StartSessionPage import StartSessionPage
+from SessionPage import SessionPage
 from SubjectsPage import SubjectsPage
 from StateManager import StateManager
 
@@ -22,7 +22,7 @@ class App(tk.Tk):
         # pages
         self.pages = [
             {"page": SubjectsPage, "name": "Subjects"},
-            {"page": StartSessionPage, "name": "Sessions"},
+            {"page": SessionPage, "name": "Sessions"},
         ]
 
         # Initialize Menu first to keep it on top

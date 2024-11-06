@@ -11,10 +11,10 @@ class LoginPage(Frame):
     def load_page(self):
         # Main frame for the login page content
         subframe = tk.Frame(self)
-        subframe.pack(expand=True, fill="both")
+        subframe.pack()
         
         # Label for the login page
-        label = tk.Label(subframe, text="Login",  font=('Arial', 22))
+        label = tk.Label(subframe, text="Login or Sign up",  font=('Arial', 22))
         label.grid(row=0, column=0, columnspan=2, pady=10)
 
         # Username frame with label and entry
@@ -37,8 +37,12 @@ class LoginPage(Frame):
 
         btn_frame = tk.Frame(subframe)
         btn_frame.grid(row=3, column=0, sticky="ew", padx=10, pady=5)
-        login_btn = tk.Button(btn_frame, text="Login", command=lambda:self.login_user(username_entry.get(), password_entry.get()))
-        login_btn.grid(row=0, column=0)
+
+        login_btn = tk.Button(btn_frame, text="Login", font=("Arial", 12, "bold"), command=lambda:self.login_user(username_entry.get(), password_entry.get()))
+        login_btn.grid(row=0, column=0, padx=5, pady=5,)
+
+        sign_up_btn = tk.Button(btn_frame, text="Sign Up", font=("Arial", 12, "bold"), command=lambda:self.sign_up(username_entry.get(), password_entry.get()))
+        sign_up_btn.grid(row=0, column=1, padx=5, pady=5,)
 
     def login_user(self, username, password):
         self.user.name = username
@@ -51,4 +55,15 @@ class LoginPage(Frame):
         else:
             print(req["message"])
             messagebox.showerror("Error Logging in", "incorrect username or password")
+    
+    def sign_up(self, username, password):
+        self.user.name = username
+        self.user.password = password
+        self.state_manager.set_state({"user":self.user})
+        req = self.user.create_user()
+        if req["successful"]:
+            self.state_manager.set_state({"is_logged_in": True })
+        else:
+            print(req["message"])
+            messagebox.showerror("Error Signing up", "User already exist")
             

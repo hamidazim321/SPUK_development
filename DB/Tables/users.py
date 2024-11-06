@@ -48,6 +48,7 @@ class User(Database):
                 "message": None
             }
         except Exception as e:
+            self.connection.rollback()
             print('Error creating user:', e)
             return {
                 "successful": False,
@@ -71,6 +72,7 @@ class User(Database):
                 }
 
             except Exception as e:
+                self.connection.rollback()
                 print("Error deleting user:", e)
                 return {
                     "successful": False,

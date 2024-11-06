@@ -30,14 +30,6 @@ class Menu(Frame):
                 btn.pack(side=tk.LEFT, padx=5, pady=5)
             logout_btn = tk.Button(self, text="Logout", command=self.logout)
             logout_btn.pack(side=tk.LEFT, padx=5, pady=5)
-
-        else:  
-            login_btn = self.create_button("Login", LoginPage)
-            registration_btn = self.create_button("Sign Up", RegistrationPage)
-
-            login_btn.pack(side=tk.LEFT, padx=5, pady=5)
-            registration_btn.pack(side=tk.LEFT, padx=5, pady=5)
-
             
     def update_menu(self, state):
         self.state = state
