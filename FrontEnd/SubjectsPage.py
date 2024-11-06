@@ -18,11 +18,9 @@ class SubjectsPage(Frame):
         subjects = self.fetch_user_subjects()
         self.state_manager.set_state({"user_subjects": subjects})
         
-        # Update local state directly instead of using set_state to avoid triggering subscribers
+        # get updated state
         self.state = self.state_manager.get_state()
-        self.state["user_subjects"] = subjects
 
-        # Now that the page has data, load it
         self.load_page()
 
     def fetch_user_subjects(self):
@@ -117,7 +115,7 @@ class SubjectsPage(Frame):
                 tk.Label(table, text=subject["total_chapters"], bg=bg_color, padx=5, pady=5).grid(row=row, column=1, sticky="ew")
                 tk.Label(table, text=subject["current_chapter"], bg=bg_color, padx=5, pady=5).grid(row=row, column=2, sticky="ew")
                 tk.Label(table, text=subject["studied_mins"], bg=bg_color, padx=5, pady=5).grid(row=row, column=3, sticky="ew")
-                tk.Button(table, text="Remove", background="red", command=lambda:self.remove_subject(subject["subject_name"])).grid(row=row, column=4, sticky="ew")
+                tk.Button(table, text="Remove", background="red", command=lambda:self.remove_subject(subject["id"])).grid(row=row, column=4, sticky="ew")
 
         return table
     
@@ -125,12 +123,11 @@ class SubjectsPage(Frame):
         # Reload Page 
         self.load_page()
     
-    def remove_subject(self, subject_name):
-        subject = Subject(self.user, subject_name)
-        req = subject.remove_subject()
+    def remove_subject(self, id):
+        req = self.subject.remove_subject(id)
         if req["successful"]:
             current_subjects = self.state["user_subjects"]
-            new_subjects = [subj for subj in current_subjects if subj["subject_name"] != subject_name]
+            new_subjects = [subj for subj in current_subjects if subj["id"] != id]
             self.state["user_subjects"] = new_subjects
             self.update_page()
         else:

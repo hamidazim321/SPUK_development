@@ -10,16 +10,23 @@ class Subject:
         if self.user.get_current_user(): 
             try:
                 self.user.cursor.execute(
-                    'INSERT INTO subjects (subject_name, user_id, total_chapters, current_chapter, studied_mins) VALUES (%s, %s, %s, %s, %s)',
-                    (self.subject_name, self.user.get_current_user().id, total_chapters, current_chapter, 0)
-                )
+                '''
+                INSERT INTO subjects (subject_name, user_id, total_chapters, current_chapter, studied_mins) 
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING subject_id, subject_name, total_chapters, current_chapter, studied_mins
+                ''',
+                (self.subject_name, self.user.get_current_user().id, total_chapters, current_chapter, 0)
+                 )
+                subject_added = self.user.cursor.fetchone()
                 self.user.connection.commit()
+
                 return {"successful": True, 
                 "subject": {
-                    "subject_name": self.subject_name,
-                    "current_chapter": current_chapter,
-                    "total_chapters": total_chapters,
-                    "studied_mins": 0
+                    "id": subject_added[0],
+                    "subject_name": subject_added[1],
+                    "current_chapter": subject_added[2],
+                    "total_chapters": subject_added[3],
+                    "studied_mins": subject_added[4]
                     }
                 }
             except Exception as e:
@@ -30,15 +37,28 @@ class Subject:
             print("User not found")
             return {"successful": False, "message": "User not found"}
     
-    def remove_subject(self) -> dict:
+    def remove_subject(self, id) -> dict:
         if self.user.get_current_user():
             try:
                 self.user.cursor.execute(
-                    'DELETE FROM subjects WHERE subject_name = %s AND user_id = %s',
-                    (self.subject_name, self.user.get_current_user().id)
+                    '''
+                    DELETE FROM subjects WHERE subject_id = %s AND user_id = %s
+                    RETURNING subject_id, subject_name, total_chapters, current_chapter, studied_mins
+                    ''',
+                    (id, self.user.get_current_user().id)
                 )
+                subject = self.user.cursor.fetchone()
                 self.user.connection.commit()
-                return {"successful": True}
+                return {
+                    "successful": True,
+                    "subject": {
+                        "id": subject[0],
+                        "subject_name": subject[1],
+                        "current_chapter": subject[2],
+                        "total_chapters": subject[3],
+                        "studied_mins": subject[4]
+                    }
+                    }
             except Exception as e:
                 self.user.connection.rollback()
                 print("Error removing subject:", str(e))
@@ -51,17 +71,18 @@ class Subject:
         if self.user.get_current_user():
             try:
                 self.user.cursor.execute(
-                    'SELECT subject_name, current_chapter, total_chapters, studied_mins FROM subjects WHERE user_id = %s',
+                    'SELECT subject_id, subject_name, current_chapter, total_chapters, studied_mins FROM subjects WHERE user_id = %s',
                     (self.user.get_current_user().id,)
                 )
                 subjects = self.user.cursor.fetchall()
                 subjects_object = []
                 for s in subjects:
                     subjects_object.append({
-                        "subject_name": s[0],
-                        "current_chapter": s[1],
-                        "total_chapters": s[2],
-                        "studied_mins": s[3]
+                        "id": s[0],
+                        "subject_name": s[1],
+                        "current_chapter": s[2],
+                        "total_chapters": s[3],
+                        "studied_mins": s[4]
                     })
                 print("Subjects fetched")
                 return {"successful": True, "subjects": subjects_object}
@@ -77,7 +98,7 @@ class Subject:
       if self.user.get_current_user():
           try:
               self.user.cursor.execute(
-                  'SELECT subject_name, current_chapter, total_chapters, studied_mins, subject_id FROM subjects WHERE user_id = %s AND subject_name = %s',
+                  'SELECT subject_id, subject_name, current_chapter, total_chapters, studied_mins FROM subjects WHERE user_id = %s AND subject_name = %s',
                   (self.user.get_current_user().id, self.subject_name)
               )
               subject = self.user.cursor.fetchone()
@@ -86,11 +107,11 @@ class Subject:
                   return {
                       "successful": True,
                       "subject": {
-                          "subject_name": subject[0],
-                          "current_chapter": subject[1],
-                          "total_chapters": subject[2],
-                          "studied_mins": subject[3],
-                          "subject_id": subject[4]
+                        "id": subject[0],                      
+                        "subject_name": subject[1],
+                        "current_chapter": subject[2],
+                        "total_chapters": subject[3],
+                        "studied_mins": subject[4],
                       }
                   }
               else:

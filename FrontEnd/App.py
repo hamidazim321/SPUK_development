@@ -4,6 +4,7 @@ from Menu import Menu
 from SessionPage import SessionPage
 from SubjectsPage import SubjectsPage
 from StateManager import StateManager
+from LoginPage import LoginPage
 
 
 class App(tk.Tk):
