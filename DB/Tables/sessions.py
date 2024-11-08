@@ -35,17 +35,17 @@ class Session:
                 try:
                     self.user.cursor.execute(
                         '''
-                        INSERT INTO study_sessions (user_id, subject_id, start_time, end_time, session_date, duration_mins) VALUES (%s, %s, %s, %s, %s)
+                        INSERT INTO study_sessions (user_id, subject_id, start_time, end_time, session_date, duration_mins) VALUES (%s, %s, %s, %s, %s, %s)
                         RETURNING session_id, subject_id, start_time, end_time, session_date, duration_mins
                         ''',
                         (self.user.id, subject_id, self.start_time, self.end_time, self.start_time.date(), self.duration_mins) 
                     )
  
-                    session_added = self.cursor.fetchone()
+                    session_added = self.user.cursor.fetchone()
 
                     self.user.cursor.execute(
                         'UPDATE subjects SET studied_mins = studied_mins + %s WHERE user_id = %s AND subject_id = %s',
-                        (studied_mins, self.user.id, subject_id)
+                        (self.duration_mins, self.user.id, subject_id)
                     )
 
                     self.user.connection.commit() 
