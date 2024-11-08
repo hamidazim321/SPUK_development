@@ -3,7 +3,6 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from DB.Tables.users import User
-from DB.Tables.sessions import Session
 
 
 class StateManager:
@@ -12,7 +11,8 @@ class StateManager:
             "is_logged_in": False,
             "user": User("", ""),
             "user_subjects": [],
-            "current_session": None
+            "current_session": None,
+            "user_sessions": []
         }
         self.subscribers = []
 

@@ -67,7 +67,7 @@ class Subject:
             print("User not found")
             return {"successful": False, "message": "User not found"}
 
-    def get_all_subjects(self) -> dict:
+    def get_all_subjects(self) -> list:
         if self.user.get_current_user():
             try:
                 self.user.cursor.execute(
