@@ -104,13 +104,14 @@ class StartSessionPage(Frame):
         self.current_session.end_session()
         self.state_manager.set_state({"current_session": self.current_session})
         self.load_page()
-        print(self.current_session.duration_mins)
 
     def add_session(self, subject_id):
         if subject_id:
             req = self.current_session.add_session(subject_id)
             if req["successful"]:
                 messagebox.showinfo("Session Added", f"Duration: {req['session']['duration_mins']} Minutes")
+                self.state_manager.set_state({"current_session": self.current_session})
+                self.load_page()
             else:
                 messagebox.showerror("Error adding session", req["message"])
         else:

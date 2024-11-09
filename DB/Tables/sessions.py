@@ -49,6 +49,7 @@ class Session:
                     )
 
                     self.user.connection.commit() 
+                    self.reset_session()
                     return {
                         "successful": True, 
                         "session":{
@@ -60,7 +61,6 @@ class Session:
                             "duration_mins": session_added[5]
                         }
                         }
-                    self.reset_session()
                 except Exception as e:
                     print("Exception adding session", str(e))
                     return {"successful": False, "message": str(e)}
@@ -72,6 +72,7 @@ class Session:
             return {"successful": False, "message": "User not found"}
     
     def reset_session(self):
+        print("session reseted")
         self.start_time = None
         self.end_time = None
         self.duration_mins = None
