@@ -23,7 +23,7 @@ class LoginPage(Frame):
         username_label = tk.Label(username_frame, text="Username:", font=('Arial', 12))
         username_label.grid(row=0, column=0, padx=(0, 5))
         username_entry = tk.Entry(username_frame, fg='grey', bg='lightyellow', font=('Arial', 12), borderwidth=2, relief='groove')
-        username_entry.insert(0, self.user.name)
+        username_entry.insert(0, self.user.username)
         username_entry.grid(row=0, column=1)
 
         # Password frame with label and entry
@@ -45,11 +45,11 @@ class LoginPage(Frame):
         sign_up_btn.grid(row=0, column=1, padx=5, pady=5,)
 
     def login_user(self, username, password):
-        self.user.name = username
+        self.user.username = username
         self.user.password = password
         self.state_manager.set_state({"user":self.user})
 
-        req = self.user.get_user()
+        req = self.user.login_user()
         if req["successful"]:
             self.state_manager.set_state({"is_logged_in": True })
         else:
@@ -57,7 +57,7 @@ class LoginPage(Frame):
             messagebox.showerror("Error Logging in", "incorrect username or password")
     
     def sign_up(self, username, password):
-        self.user.name = username
+        self.user.username = username
         self.user.password = password
         self.state_manager.set_state({"user":self.user})
         req = self.user.create_user()

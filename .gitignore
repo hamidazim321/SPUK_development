@@ -1,4 +1,4 @@
 secret.key
 encrypted_password.bin
 __pycache__
-test.py
+spuk.db

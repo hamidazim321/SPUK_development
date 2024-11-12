@@ -5,14 +5,13 @@ from tkinter import messagebox
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from DB.Tables.subjects import Subject
+from DB.Queries.user_subject import UserSubject
 
 class SubjectsPage(Frame):
     def __init__(self, master, state_manager):
         super().__init__(master)
         self.state_manager = state_manager
-        self.user = self.state_manager.get_state()["user"]
-        self.subject = Subject(self.user, "")
+        self.subject = UserSubject("")
         
         # Fetch subjects initially and set state
         subjects = self.fetch_user_subjects()
@@ -115,7 +114,7 @@ class SubjectsPage(Frame):
                 tk.Label(table, text=subject["total_chapters"], bg=bg_color, padx=5, pady=5).grid(row=row, column=1, sticky="ew")
                 tk.Label(table, text=subject["current_chapter"], bg=bg_color, padx=5, pady=5).grid(row=row, column=2, sticky="ew")
                 tk.Label(table, text=subject["studied_mins"], bg=bg_color, padx=5, pady=5).grid(row=row, column=3, sticky="ew")
-                tk.Button(table, text="Remove", background="red", command=lambda:self.remove_subject(subject["id"])).grid(row=row, column=4, sticky="ew")
+                tk.Button(table, text="Remove", background="red", command=lambda:self.remove_subject(subject["subject_name"])).grid(row=row, column=4, sticky="ew")
 
         return table
     
@@ -123,11 +122,12 @@ class SubjectsPage(Frame):
         # Reload Page 
         self.load_page()
     
-    def remove_subject(self, id):
-        req = self.subject.remove_subject(id)
+    def remove_subject(self, subject_name):
+        subject_remove = UserSubject(subject_name)
+        req = subject_remove.remove_subject()
         if req["successful"]:
             current_subjects = self.state["user_subjects"]
-            new_subjects = [subj for subj in current_subjects if subj["id"] != id]
+            new_subjects = [subj for subj in current_subjects if subj["subject_name"] != subject_name]
             self.state["user_subjects"] = new_subjects
             self.update_page()
         else:
