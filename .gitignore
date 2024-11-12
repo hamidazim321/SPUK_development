@@ -2,3 +2,6 @@ secret.key
 encrypted_password.bin
 __pycache__
 spuk.db
+/build
+/dist
+SPUK.spec
