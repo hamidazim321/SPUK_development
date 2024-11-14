@@ -5,7 +5,7 @@ from tkinter import messagebox
 from tkinter import Frame
 from tkinter import ttk
 import tkinter as tk
-from Timer import Timer
+from Components.Timer import Timer
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from DB.Queries.user_subject import UserSubject
 from DB.Queries.study_session import StudySession

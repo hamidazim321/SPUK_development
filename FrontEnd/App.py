@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import Frame
-from Menu import Menu
+from Components.Menu import Menu
 from StartSessionPage import StartSessionPage
 from SubjectsPage import SubjectsPage
 from StateManager import StateManager
