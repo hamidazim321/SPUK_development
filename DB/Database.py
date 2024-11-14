@@ -24,7 +24,7 @@ class Database:
         try:
             self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 password_digest TEXT NOT NULL
             )
@@ -38,13 +38,13 @@ class Database:
         try:
             self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_subjects (
-                id INTEGER PRIMARY KEY AUTOINCREMENT
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 subject_name TEXT NOT NULL,
                 current_chapter INTEGER,
                 total_chapters INTEGER,
                 studied_mins INTEGER DEFAULT 0,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
             """)
             self.connection.commit()

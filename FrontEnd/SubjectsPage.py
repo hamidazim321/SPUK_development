@@ -11,20 +11,20 @@ class SubjectsPage(Frame):
     def __init__(self, master, state_manager):
         super().__init__(master)
         self.state_manager = state_manager
-        self.subject = UserSubject("")
         
         # Fetch subjects initially and set state
-        subjects = self.fetch_user_subjects()
-        self.state_manager.set_state({"user_subjects": subjects})
+        user_subjects = self.fetch_user_subjects()
+        self.state_manager.set_state({"user_subjects": user_subjects})
         
         # get updated state
-        self.state = self.state_manager.get_state()
+        self.state = None
 
         self.load_page()
 
     def fetch_user_subjects(self):
         # Fetch user subjects from DB and return the list
-        req = self.subject.get_all_subjects()
+        subject = UserSubject("")
+        req = subject.get_all_subjects()
         if req["successful"]:
             print("subjects fetched")
             return req["subjects"]
@@ -36,6 +36,8 @@ class SubjectsPage(Frame):
         # Load static page with table
         for widget in self.winfo_children():
             widget.destroy()
+        
+        self.state = self.state_manager.get_state() 
 
         subframe = tk.Frame(self)
         subframe.pack(expand=True, fill="both")
@@ -81,13 +83,12 @@ class SubjectsPage(Frame):
         total_chapters = int(total_chapters_entry.get())
         current_chapter = int(current_chapter_entry.get())
 
-        self.subject.subject_name = name
+        subject = UserSubject(name, current_chapter=current_chapter, total_chapters=total_chapters)
         try:
-            req = self.subject.add_subject(total_chapters, current_chapter)
+            req = subject.add_subject()
             if req["successful"]:
-                subject_added = req["subject"]
-                self.state["user_subjects"].append(subject_added)
-                self.update_page()
+                self.state["user_subjects"].append(subject)
+                self.load_page()
                 print("subject added")
             else:
                 messagebox.showerror("Error Adding Subject", req["message"])
@@ -110,26 +111,22 @@ class SubjectsPage(Frame):
             for row, subject in enumerate(subjects, start=1):
                 bg_color = "#e9e9e9" if row % 2 == 0 else "#ffffff"  
 
-                tk.Label(table, text=subject["subject_name"], bg=bg_color, padx=5, pady=5).grid(row=row, column=0, sticky="ew")
-                tk.Label(table, text=subject["total_chapters"], bg=bg_color, padx=5, pady=5).grid(row=row, column=1, sticky="ew")
-                tk.Label(table, text=subject["current_chapter"], bg=bg_color, padx=5, pady=5).grid(row=row, column=2, sticky="ew")
-                tk.Label(table, text=subject["studied_mins"], bg=bg_color, padx=5, pady=5).grid(row=row, column=3, sticky="ew")
-                tk.Button(table, text="Remove", background="red", command=lambda:self.remove_subject(subject["subject_name"])).grid(row=row, column=4, sticky="ew")
+                tk.Label(table, text=subject.subject_name, bg=bg_color, padx=5, pady=5).grid(row=row, column=0, sticky="ew")
+                tk.Label(table, text=subject.total_chapters, bg=bg_color, padx=5, pady=5).grid(row=row, column=1, sticky="ew")
+                tk.Label(table, text=subject.current_chapter, bg=bg_color, padx=5, pady=5).grid(row=row, column=2, sticky="ew")
+                tk.Label(table, text=subject.studied_mins, bg=bg_color, padx=5, pady=5).grid(row=row, column=3, sticky="ew")
+                tk.Button(table, text="Remove", background="red", command=lambda:self.remove_subject(subject)).grid(row=row, column=4, sticky="ew")
 
         return table
     
-    def update_page(self):
-        # Reload Page 
-        self.load_page()
-    
-    def remove_subject(self, subject_name):
-        subject_remove = UserSubject(subject_name)
-        req = subject_remove.remove_subject()
+    def remove_subject(self, subject:UserSubject):
+        print(subject.subject_name)
+        req = subject.remove_subject()
         if req["successful"]:
             current_subjects = self.state["user_subjects"]
-            new_subjects = [subj for subj in current_subjects if subj["subject_name"] != subject_name]
-            self.state["user_subjects"] = new_subjects
-            self.update_page()
+            new_subjects = [subj for subj in current_subjects if subj.id != subject.id]
+            self.state_manager.set_state({"user_subjects": new_subjects})
+            self.load_page()
         else:
             messagebox.showerror("Error removing page", req["message"])
     

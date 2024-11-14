@@ -14,19 +14,19 @@ class StartSessionPage(Frame):
     def __init__(self, master, state_manager):
         super().__init__(master)
         self.state_manager = state_manager
-        self.user = self.state_manager.get_state()["user"]
-        self.set_global_session()
         self.state = self.state_manager.get_state()
+        self.set_global_session()
         self.user_subjects = self.get_user_subjects()
-        self.subject_options = [subject['subject_name'] for subject in self.user_subjects]
+        self.subject_options = [subject.subject_name for subject in self.user_subjects]
         self.current_session = self.state["current_session"]
 
         self.load_page()
 
     def set_global_session(self):
-        session = StudySession()
-        self.state_manager.set_state({"current_session": session})
-
+        if self.state["current_session"] == None:
+            session = StudySession()
+            self.state_manager.set_state({"current_session": session})
+            self.state["current_session"] = session
     def get_user_subjects(self):
         subject = UserSubject("")
         req = subject.get_all_subjects()
@@ -81,7 +81,7 @@ class StartSessionPage(Frame):
             padx=20,
             pady=10,
             command=lambda: self.add_session(
-                subjects_selector.get())
+                subjects_selector.current())
         )
         add_session_btn.config(borderwidth=5, relief="ridge")
 
@@ -111,14 +111,18 @@ class StartSessionPage(Frame):
         self.state_manager.set_state({"current_session": self.current_session})
         self.load_page()
 
-    def add_session(self, subject_name:str):
-        if subject_name and subject_name in self.subject_options: 
-            req = self.current_session.add_session(subject_name)
+    def add_session(self, subject_option_index:int):
+        print(subject_option_index)
+        if subject_option_index > -1:
+            subject_id = self.user_subjects[subject_option_index].id
+            self.current_session.subject_id = subject_id
+            req = self.current_session.add_session()
             if req["successful"]:
-                messagebox.showinfo(
-                    "Session Added", f"Duration: {req['session']['duration_mins']} Minutes")
-                self.state_manager.set_state(
-                    {"current_session": self.current_session})
+                messagebox.showinfo("Session Added", f"Duration: {self.current_session.duration_mins} Minutes")
+                user_sessions = self.state_manager.get_state()["user_sessions"]
+                user_sessions.append(self.current_session)
+                self.current_session = StudySession()
+                self.state_manager.set_state({"user_sessions": user_sessions, "current_session": self.current_session})
                 self.load_page()
             else:
                 messagebox.showerror("Error adding session", req["message"])

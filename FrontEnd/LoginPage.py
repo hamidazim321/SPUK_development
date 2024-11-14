@@ -59,10 +59,9 @@ class LoginPage(Frame):
     def sign_up(self, username, password):
         self.user.username = username
         self.user.password = password
-        self.state_manager.set_state({"user":self.user})
         req = self.user.create_user()
         if req["successful"]:
-            self.state_manager.set_state({"is_logged_in": True })
+            self.state_manager.set_state({"is_logged_in": True, "user": self.user })
         else:
             print(req["message"])
             messagebox.showerror("Error Signing up", "User already exist")

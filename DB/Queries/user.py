@@ -4,19 +4,21 @@ from helpers import hash_password, verify_password
 
 class User(Database):
     # Schema(
-    # username TEXT PRIMARY KEY UNIQUE NOT NULL,
-    # password_digest TEXT NOT NULL
+        # id INTEGER PRIMARY KEY AUTOINCREMENT,
+        # username TEXT UNIQUE NOT NULL,
+        # password_digest TEXT NOT NULL
     # )
     def __init__(self, username: str, password: str):
         super().__init__()
         self.username = username
         self.password = password
+        self.id = None
 
     def login_user(self) -> dict:
         """Retrieve a user based on username and verify the password."""
         try:
             self.cursor.execute(
-                "SELECT username, password_digest FROM users WHERE username = ?",
+                "SELECT username, password_digest, id FROM users WHERE username = ?",
                 (self.username,)
             )
             user = self.cursor.fetchone()
@@ -25,6 +27,7 @@ class User(Database):
                 password_digest = user[1]
 
                 if verify_password(password_digest, self.password):
+                    self.id = user[2]
                     Database.set_logged_in_user(self)
                     return {"successful": True, "username": user[0]}
                 else:
