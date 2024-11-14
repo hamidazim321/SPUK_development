@@ -45,6 +45,7 @@ class Database:
                 total_chapters INTEGER,
                 studied_mins INTEGER DEFAULT 0,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                CHECK (current_chapter <= total_chapters)
             )
             """)
             self.connection.commit()

@@ -107,3 +107,22 @@ class UserSubject(Database):
         else:
             print("User not found")
             return {"successful": False, "message": "User not found"}
+
+    def update_subject(self):
+        if self.current_user:
+            try:
+                self.cursor.execute(
+                    '''
+                    UPDATE user_subjects
+                    SET subject_name = ?, current_chapter = ?, total_chapters = ?
+                    WHERE id = ?
+                    ''',
+                    (self.subject_name, self.current_chapter, self.total_chapters, self.id)
+                )
+                self.commit()
+                return {"successful": True}
+            except Exception as e:
+                self.connection.rollback()
+                return {"successful": False, "message": str(e)}
+        else:
+            return {"successful": False, "message": "user not found"}

@@ -55,9 +55,9 @@ class StudySession(Database):
                         '''
                         UPDATE user_subjects 
                         SET studied_mins = studied_mins + ? 
-                        WHERE user_id = ? AND id = ?
+                        WHERE id = ?
                         ''',
-                        (self.duration_mins, self.current_user.id, self.subject_id)
+                        (self.duration_mins, self.subject_id)
                     )
 
                     self.commit()
@@ -72,3 +72,27 @@ class StudySession(Database):
         else:
             print("User not found")
             return {"successful": False, "message": "User not found"}
+    
+    def get_user_sessions(self):
+        if self.current_user:
+            try:
+                self.cursor.execute(
+                    '''
+                    SELECT id, start_time, end_time, duration_mins, subject_id
+                    FROM study_sessions
+                    WHERE user_id = ?
+                    ''',
+                    (self.current_user.id,)
+                )
+                sessions = self.cursor.fetchall()
+                sessions_list = []
+                for s in sessions:
+                    session = StudySession(s[4], s[1], s[2], s[3])
+                    session.id = s[0]
+                    sessions_list.append(session)
+                
+                return {"successful": True, "sessions": sessions_list}
+            except Exception as e:
+                return {"successful": False, "message": str(e)}
+        else:
+            return {"successful": False, "message": "user not found"}
