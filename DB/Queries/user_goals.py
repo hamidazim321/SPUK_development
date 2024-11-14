@@ -37,19 +37,7 @@ class UserGoals(Database):
         )
         self.commit()
 
-        # Fetch the newly inserted goal
-        self.cursor.execute(
-            '''
-            SELECT id, title, description, due_date, achieved, expired
-            FROM user_goals 
-            WHERE title = ? AND user_id = ?
-            ORDER BY id DESC
-            LIMIT 1
-            ''',
-            (self.title, self.current_user.id)
-        )
-        goal_added = self.cursor.fetchone()
-        self.id = goal_added[0]
+        self.id = self.cursor.lastrowid
 
         return {"successful": True}
       except Exception as e:
