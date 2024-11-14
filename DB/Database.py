@@ -24,7 +24,8 @@ class Database:
         try:
             self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
-                username TEXT PRIMARY KEY UNIQUE NOT NULL,
+                id INTEGER PRIMARY KEY AUTOINCREMENT
+                username TEXT UNIQUE NOT NULL,
                 password_digest TEXT NOT NULL
             )
             """)
@@ -37,13 +38,13 @@ class Database:
         try:
             self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_subjects (
-                username TEXT NOT NULL,
+                id INTEGER PRIMARY KEY AUTOINCREMENT
+                user_id INTEGER NOT NULL,
                 subject_name TEXT NOT NULL,
                 current_chapter INTEGER,
                 total_chapters INTEGER,
                 studied_mins INTEGER DEFAULT 0,
-                FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE,
-                PRIMARY KEY (username, subject_name)
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             )
             """)
             self.connection.commit()
@@ -59,10 +60,10 @@ class Database:
                 start_time DATETIME NOT NULL,
                 end_time DATETIME NOT NULL,
                 duration_mins INTEGER NOT NULL,
-                username TEXT NOT NULL,
-                subject_name TEXT NOT NULL,
-                FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE,
-                FOREIGN KEY (username, subject_name) REFERENCES user_subjects(username, subject_name) ON DELETE CASCADE
+                user_id INTEGER NOT NULL,
+                subject_id INTEGER NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (subject_id) REFERENCES user_subjects(id) ON DELETE CASCADE
             )
             """)
             self.connection.commit()
@@ -77,11 +78,11 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 description TEXT NOT NULL,
-                username TEXT NOT NULL,
+                user_id INTEGER NOT NULL,
                 due_date DATE NOT NULL,
                 achieved INTEGER CHECK(achieved IN (0, 1)),
                 expired INTEGER CHECK(expired IN (0, 1)),
-                FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
             """)
             self.connection.commit()
@@ -94,12 +95,12 @@ class Database:
             self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_exams (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL,
-                subject_name TEXT NOT NULL,
+                user_id INTEGER NOT NULL,
+                subject_id INTEGER NOT NULL,
                 title TEXT NOT NULL,
                 exam_date DATE NOT NULL,
-                FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE,
-                FOREIGN KEY (username, subject_name) REFERENCES user_subjects(username, subject_name) ON DELETE CASCADE
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (subject_id) REFERENCES user_subjects(id) ON DELETE CASCADE
             )
             """)
             self.connection.commit()
