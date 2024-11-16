@@ -1,9 +1,9 @@
-from customtkinter import CTkFrame, CTkLabel, CTkEntry, CTkButton
+from customtkinter import CTkScrollableFrame, CTkFrame, CTkLabel, CTkEntry, CTkButton
 from CTkMessagebox import CTkMessagebox
 from DB.Queries.user_subject import UserSubject
 
 
-class SubjectsPage(CTkFrame):
+class SubjectsPage(CTkScrollableFrame):
     def __init__(self, master, state_manager):
         super().__init__(master)
         self.state_manager = state_manager
@@ -20,19 +20,16 @@ class SubjectsPage(CTkFrame):
         if req["successful"]:
             return req["subjects"]
         else:
-            CTkMessagebox.show_error("Error Loading Subjects", req["message"])
+            CTkMessagebox(title="Error Loading Subjects", message=req["message"], icon="cancel")
             return []
 
     def load_page(self):
-        for widget in self.winfo_children():
-            widget.destroy()
-
         subframe = CTkFrame(self)
         subframe.pack(expand=True, fill="both", padx=20, pady=20)
 
         # Subjects Table
         self.subjects_table = SubjectsTable(subframe, self.state["user_subjects"], self.remove_subject)
-        self.subjects_table.grid(row=0, column=0, pady=10)
+        self.subjects_table.grid(row=0, column=0, pady=10, sticky="nsew")
 
         # Add Subject Form
         self.create_add_subject_form(subframe)
@@ -107,6 +104,7 @@ class SubjectsTable(CTkFrame):
         super().__init__(master)
         self.on_remove_subject = on_remove_subject
         self.rows = []
+        self.subframe = CTkFrame(self)
         
         # Create headers
         headers = ["Subject Name", "Total Chapters", "Current Chapter", "Studied Mins", "Remove"]
@@ -116,9 +114,10 @@ class SubjectsTable(CTkFrame):
         # Add initial rows
         for subject in subjects:
             self.add_row(subject)
+        self.subframe.grid(row=1, column=0, columnspan=len(headers), sticky="nsew")
     
     def add_row(self, subject):
-        row = SubjectRow(self, subject, self.on_remove_subject)
+        row = SubjectRow(self.subframe, subject, self.on_remove_subject)
         row.grid(row=len(self.rows) + 1, column=0, columnspan=5, sticky="ew")
         self.rows.append(row)
 

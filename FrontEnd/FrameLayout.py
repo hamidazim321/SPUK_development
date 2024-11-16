@@ -19,8 +19,8 @@ class FrameLayout(CTkFrame):
         self.subjects_page = SubjectsPage(self.tabview.tab("Subjects"), self.state_manager)
         self.session_page = StartSessionPage(self.tabview.tab("Session"), self.state_manager)
 
-        self.subjects_page.pack()
-        self.session_page.pack()
+        self.subjects_page.pack(expand=True, fill="both")
+        self.session_page.pack(expand=True, fill="both")
 
         self.logout_btn = CTkButton(self.tabview.tab("Logout"), text="Logout", command=self.logout)
         self.logout_btn.pack(pady=10)

@@ -43,7 +43,6 @@ class StartSessionPage(CTkFrame):
             self.subjects_selector.configure(values=self.subject_options)
 
     def load_page(self):
-        print("session page loaded")
         subframe = CTkFrame(self)
         subframe.pack(expand=True, fill="both", padx=20, pady=20)
 
