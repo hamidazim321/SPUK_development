@@ -16,7 +16,12 @@ class StartSessionPage(CTkFrame):
         self.user_subjects = self.state["user_subjects"].copy()
         self.subject_options = [f"{subject.subject_name}({subject.id})" for subject in self.user_subjects]
         self.current_session = self.state["current_session"]
-        self.state_manager.subscribe(self.update_page)
+        self.state_manager.subscribe(self.update_page, ["user_subjects"], self)
+
+    
+    def destroy(self):
+        self.state_manager.unsubscribe(self)
+        super().destroy()
 
     def set_global_session(self):
         if self.state["current_session"] is None:
@@ -25,18 +30,11 @@ class StartSessionPage(CTkFrame):
             self.state["current_session"] = session
 
     def update_page(self, state):
-        print("update session Page called")
-        print("SP Ini", len(self.user_subjects), "SP Fin", len(state["user_subjects"]))
-        if len(state["user_subjects"]) != len(self.user_subjects):
-            print("session Page updated")
-            self.state = state
-            self.user_subjects = self.state["user_subjects"]
-            self.subject_options = [f"{subject.subject_name}({subject.id})" for subject in self.user_subjects]
-            self.load_page()
-        elif not self.initial_load:
-            self.initial_load = True
-            self.load_page()
-            print("session page loaded initially")
+        print("session page updated")
+        self.state = state
+        self.user_subjects = self.state["user_subjects"]
+        self.subject_options = [f"{subject.subject_name}({subject.id})" for subject in self.user_subjects]
+        self.load_page()
 
     def load_page(self):
         for widget in self.winfo_children():

@@ -16,7 +16,7 @@ class App(CTk):
         # State Management
         self.state_manager = StateManager()
         self.logged_in = self.state_manager.get_state()["is_logged_in"]
-        self.state_manager.subscribe(self.update_home_page)
+        self.state_manager.subscribe(self.update_home_page, ["is_logged_in"], self)
 
         # Initialize layout
         self.current_frame = None
@@ -41,8 +41,6 @@ class App(CTk):
             self.show_frame(LoginPage)
 
     def update_home_page(self, state):
-        if self.logged_in == state["is_logged_in"]:
-            return
         self.logged_in = state["is_logged_in"]
         self.load_home_page()
 
