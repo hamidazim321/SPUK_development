@@ -1,10 +1,7 @@
-import os
-import sys
 import re
 from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkComboBox
 from CTkMessagebox import CTkMessagebox
 from Components.Timer import Timer
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from DB.Queries.user_subject import UserSubject
 from DB.Queries.study_session import StudySession
 

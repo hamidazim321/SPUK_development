@@ -1,8 +1,5 @@
 from customtkinter import CTkFrame, CTkLabel, CTkEntry, CTkButton
 from CTkMessagebox import CTkMessagebox
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from DB.Queries.user_subject import UserSubject
 
 

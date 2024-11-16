@@ -1,9 +1,12 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import re
 from customtkinter import CTk
 from FrameLayout import FrameLayout
 from LoginPage import LoginPage
 from StateManager import StateManager
 from DB.Database import Database
-
 class App(CTk):
     def __init__(self):
         super().__init__()
