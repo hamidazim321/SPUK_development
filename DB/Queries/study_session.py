@@ -26,12 +26,10 @@ class StudySession(Database):
     def start_session(self):
         """Set start_time to the current timestamp."""
         self.start_time = datetime.datetime.now()
-        print(f"Session started at {self.start_time}")
 
     def end_session(self):
         """Set end_time to the current timestamp."""
         self.end_time = datetime.datetime.now()
-        print(f"Session ended at {self.end_time}")
 
     def add_session(self):
         """Add session details if start and end time are provided."""

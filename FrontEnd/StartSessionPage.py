@@ -9,13 +9,13 @@ from DB.Queries.study_session import StudySession
 class StartSessionPage(CTkFrame):
     def __init__(self, master, state_manager):
         super().__init__(master)
+        self.initial_load = False
         self.state_manager = state_manager
         self.state = self.state_manager.get_state()
         self.set_global_session()
-        self.user_subjects = self.state["user_subjects"]
+        self.user_subjects = self.state["user_subjects"].copy()
         self.subject_options = [f"{subject.subject_name}({subject.id})" for subject in self.user_subjects]
         self.current_session = self.state["current_session"]
-        self.load_page()
         self.state_manager.subscribe(self.update_page)
 
     def set_global_session(self):
@@ -26,12 +26,17 @@ class StartSessionPage(CTkFrame):
 
     def update_page(self, state):
         print("update session Page called")
+        print("SP Ini", len(self.user_subjects), "SP Fin", len(state["user_subjects"]))
         if len(state["user_subjects"]) != len(self.user_subjects):
             print("session Page updated")
             self.state = state
             self.user_subjects = self.state["user_subjects"]
             self.subject_options = [f"{subject.subject_name}({subject.id})" for subject in self.user_subjects]
             self.load_page()
+        elif not self.initial_load:
+            self.initial_load = True
+            self.load_page()
+            print("session page loaded initially")
 
     def load_page(self):
         for widget in self.winfo_children():

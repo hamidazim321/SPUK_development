@@ -30,7 +30,6 @@ class Database:
             )
             """)
             self.connection.commit()
-            print("users table created or already exists.")
         except sqlite3.Error as e:
             print(f"Error creating users table: {e}")
 
@@ -49,7 +48,6 @@ class Database:
             )
             """)
             self.connection.commit()
-            print("subjects table created or already exists.")
         except sqlite3.Error as e:
             print(f"Error creating subjects table: {e}")
 
@@ -68,7 +66,6 @@ class Database:
             )
             """)
             self.connection.commit()
-            print("study_sessions table created or already exists.")
         except sqlite3.Error as e:
             print(f"Error creating study_sessions table: {e}")
 
@@ -89,7 +86,6 @@ class Database:
             )
             """)
             self.connection.commit()
-            print("user_goals table created or already exists.")
         except sqlite3.Error as e:
             print(f"Error creating user_goals table: {e}")
 
@@ -107,7 +103,6 @@ class Database:
             )
             """)
             self.connection.commit()
-            print("user_exams table created or already exists.")
         except sqlite3.Error as e:
             print(f"Error creating user_exams table: {e}")
 
@@ -115,7 +110,6 @@ class Database:
         if self.connection:
             try:
                 self.connection.commit()
-                print("Transaction committed successfully.")
             except Exception as e:
                 print(f"Error committing transaction: {e}")
 		
@@ -125,12 +119,10 @@ class Database:
         if cls.connection:
             cls.cursor.close()
             cls.connection.close()
-            print("Database connection closed.")
 
     @classmethod
     def set_logged_in_user(cls, user):
         cls.__logged_in_user = user
-        print("Logged-in user set to:", cls.__logged_in_user)
 
     @classmethod
     def get_logged_in_user(cls):
@@ -139,4 +131,3 @@ class Database:
     @classmethod
     def remove_logged_in_user(cls):
         cls.__logged_in_user = None
-        print("Logged-in user removed.")
