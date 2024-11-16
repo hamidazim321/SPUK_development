@@ -1,4 +1,4 @@
-from customtkinter import *
+from customtkinter import CTk
 from FrameLayout import FrameLayout
 from LoginPage import LoginPage
 from StateManager import StateManager
@@ -47,6 +47,5 @@ class App(CTk):
         Database.close()
         self.destroy()
 
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+app = App()
+app.mainloop()

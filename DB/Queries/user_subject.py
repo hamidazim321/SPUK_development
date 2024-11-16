@@ -126,3 +126,13 @@ class UserSubject(Database):
                 return {"successful": False, "message": str(e)}
         else:
             return {"successful": False, "message": "user not found"}
+    
+    def __eq__(self, other):
+        if not isinstance(other, UserSubject):
+            return NotImplemented
+        return (
+            self.subject_name == other.subject_name and
+            self.total_chapters == other.total_chapters and
+            self.current_chapter == other.current_chapter and
+            self.studied_mins == other.studied_mins
+        )
