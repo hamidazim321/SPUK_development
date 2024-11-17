@@ -11,7 +11,7 @@ class LoginPage(CTkFrame):
     def load_page(self):
         # Main frame for the login page content
         subframe = CTkFrame(self)
-        subframe.pack(pady=20, padx=20, fill="both", expand=True)
+        subframe.pack(pady=20, padx=20)
 
         # Label for the login page
         label = CTkLabel(subframe, text="Login or Sign up", font=('Arial', 22))

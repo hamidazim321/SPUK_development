@@ -44,7 +44,7 @@ class StartSessionPage(CTkFrame):
 
     def load_page(self):
         subframe = CTkFrame(self)
-        subframe.pack(expand=True, fill="both", padx=20, pady=20)
+        subframe.pack(padx=20, pady=20)
 
         # Subject selector dropdown
         self.subjects_selector = CTkComboBox(
@@ -142,7 +142,7 @@ class StartSessionPage(CTkFrame):
 # Dynamic components
 class Timer(CTkLabel):
     def __init__(self, master):
-        super().__init__(master, font=("Arial", 12, "bold"), text_color="white")
+        super().__init__(master, font=("Arial", 28, "bold"))
         self.start_time = None
         self.__update_id = None  
         self.configure(text="00:00")
@@ -170,5 +170,4 @@ class Timer(CTkLabel):
     def __update_timer(self):
         self.configure(text=self.__calculate_time())
         self.__update_id = self.after(1000, self.__update_timer)
-
 

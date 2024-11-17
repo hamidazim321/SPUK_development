@@ -7,11 +7,10 @@ class SubjectsPage(CTkScrollableFrame):
     def __init__(self, master, state_manager):
         super().__init__(master)
         self.state_manager = state_manager
-        self.initial_load = False
         self.user_subjects = self.fetch_user_subjects()
         self.state_manager.set_state({"user_subjects": self.user_subjects})
         self.state = self.state_manager.get_state()
-        self.subjects_table = None
+        self.subjects_container = None
         self.subject_form = None
         self.load_page()
 
@@ -29,8 +28,8 @@ class SubjectsPage(CTkScrollableFrame):
         subframe.pack(expand=True, fill="both", padx=20, pady=20)
 
         # Subjects Table
-        self.subjects_table = SubjectsTable(subframe, self.state["user_subjects"], self.remove_subject)
-        self.subjects_table.grid(row=0, column=0, pady=10, sticky="nsew")
+        self.subjects_container = SubjectsContainer(subframe, self.state["user_subjects"], self.remove_subject)
+        self.subjects_container.grid(row=0, column=0, pady=10, sticky="nsew")
 
         # Add Subject Form
         add_subject_btn = CTkButton(subframe, text="Add subject", command=self.open_subject_form)
@@ -38,7 +37,7 @@ class SubjectsPage(CTkScrollableFrame):
 
     def open_subject_form(self):
         if self.subject_form is None or not self.subject_form.winfo_exists():
-            self.subject_form = SubjectForm(self, self.state_manager, self.subjects_table)
+            self.subject_form = SubjectForm(self, self.state_manager, self.subjects_container)
         else:
             self.subject_form.focus()
 
@@ -53,74 +52,79 @@ class SubjectsPage(CTkScrollableFrame):
         if confirmation.get() == confirm_options[1]:
             req = subject.remove_subject()
             if req["successful"]:
-                print("RM:Initial Len:", len(self.state_manager.get_state()["user_subjects"]))
-                self.subjects_table.remove_row(subject.id)
+                self.subjects_container.remove_card(subject.id)
                 self.user_subjects = [subj for subj in self.user_subjects if subj.id != subject.id]
                 self.state_manager.set_state({"user_subjects": self.user_subjects})
-                print("RM:New Len:", len(self.state_manager.get_state()["user_subjects"]))
                 CTkMessagebox(title="Subject Removed", message=f"{subject.subject_name} removed successfully!", icon="check")
             else:
                 CTkMessagebox(title="Error Removing Subject", message=req["message"], icon="cancel")
         
 # Dynamic components
-class SubjectsTable(CTkFrame):
+class SubjectsContainer(CTkFrame):
     def __init__(self, master, subjects, on_remove_subject):
         super().__init__(master)
         self.on_remove_subject = on_remove_subject
-        self.rows = []
-        self.subframe = CTkFrame(self)
+        self.cards = []
         
-        # Create headers
-        headers = ["Subject Name", "Total Chapters", "Current Chapter", "Studied Mins", "Remove"]
-        for col, header in enumerate(headers):
-            CTkLabel(self, text=header, padx=5, pady=5).grid(row=0, column=col, sticky="ew")
+        self.columnconfigure([0, 1, 2], weight=1) 
 
-        # Add initial rows
         for subject in subjects:
-            self.add_row(subject)
-        self.subframe.grid(row=1, column=0, columnspan=len(headers), sticky="nsew")
-    
-    def add_row(self, subject):
-        row = SubjectRow(self.subframe, subject, self.on_remove_subject)
-        row.grid(row=len(self.rows) + 1, column=0, columnspan=5, sticky="ew")
-        self.rows.append(row)
+            self.add_card(subject)
 
-    def remove_row(self, subject_id):
-        for row in self.rows:
-            if row.subject.id == subject_id:
-                row.destroy()
-                self.rows.remove(row)
+    def add_card(self, subject):
+        card = SubjectCard(self, subject, self.on_remove_subject)
+        row, col = divmod(len(self.cards), 3) 
+        card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
+        self.cards.append(card)
+
+    def remove_card(self, subject_id):
+        for card in self.cards:
+            if card.subject.id == subject_id:
+                card.destroy()
+                self.cards.remove(card)
+                self.rearrange_cards()
                 break
 
-class SubjectRow(CTkFrame):
+    def rearrange_cards(self):
+        for idx, card in enumerate(self.cards):
+            row, col = divmod(idx, 3)
+            card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
+
+
+class SubjectCard(CTkFrame):
     def __init__(self, master, subject, on_remove):
         super().__init__(master)
         self.subject = subject
         self.on_remove = on_remove
+
+        self.configure(fg_color="#f5f5f5", corner_radius=10, border_width=1, border_color="#d3d3d3")
         
-        bg_color = "#e9e9e9" if (subject.id % 2 == 0) else "#ffffff"
+        # Subject details
+        CTkLabel(self, text=f"{subject.subject_name}", anchor="w", font=("Arial", 24, "bold")).grid(row=0, column=0, sticky="ew", padx=5, pady=2)
+        CTkLabel(self, text=f"Chapters: {subject.total_chapters}", anchor="w").grid(row=1, column=0, sticky="ew", padx=5, pady=2)
+        CTkLabel(self, text=f"Current: {subject.current_chapter}", anchor="w").grid(row=2, column=0, sticky="ew", padx=5, pady=2)
+        CTkLabel(self, text=f"Minutes: {subject.studied_mins}", anchor="w").grid(row=3, column=0, sticky="ew", padx=5, pady=2)
         
-        CTkLabel(self, text=subject.subject_name, fg_color=bg_color, padx=5, pady=5).grid(row=0, column=0, sticky="ew")
-        CTkLabel(self, text=subject.total_chapters, fg_color=bg_color, padx=5, pady=5).grid(row=0, column=1, sticky="ew")
-        CTkLabel(self, text=subject.current_chapter, fg_color=bg_color, padx=5, pady=5).grid(row=0, column=2, sticky="ew")
-        CTkLabel(self, text=subject.studied_mins, fg_color=bg_color, padx=5, pady=5).grid(row=0, column=3, sticky="ew")
-        
+        # Remove button
         CTkButton(
             self,
             text="Remove",
             fg_color="red",
             hover_color="#ff4d4d",
             command=lambda: self.on_remove(self.subject)
-        ).grid(row=0, column=4, sticky="ew")
+        ).grid(row=4, column=0, pady=(5, 0), sticky="ew")
+        
+        self.rowconfigure([0, 1, 2, 3, 4], weight=1)
+        self.columnconfigure([0], weight=1)
 
 class SubjectForm(CTkToplevel):
 
-    def __init__(self, master, state_manager, subjects_table):
+    def __init__(self, master, state_manager, subjects_container):
         super().__init__(master)
         self.geometry("400x300")
-        self.title = "Add a subject"
+        self.title("Add a subject")
         self.state_manager = state_manager
-        self.subjects_table = subjects_table
+        self.subjects_container = subjects_container
         self.create_add_subject_form()
 
     def create_add_subject_form(self):
@@ -141,7 +145,7 @@ class SubjectForm(CTkToplevel):
         CTkButton(
             add_subject_frame,
             text="Add Subject",
-            command=lambda: self.add_subject(subject_name_entry, total_chapters_entry, current_chapter_entry)
+            command=lambda: self.add_subject(name_entry=subject_name_entry, total_chapters_entry=total_chapters_entry, current_chapter_entry=current_chapter_entry)
         ).grid(row=4, column=0, columnspan=2, pady=10)
     
     def add_subject(self, name_entry, total_chapters_entry, current_chapter_entry):
@@ -149,12 +153,11 @@ class SubjectForm(CTkToplevel):
             name = name_entry.get()
             total_chapters = int(total_chapters_entry.get())
             current_chapter = int(current_chapter_entry.get())
-
             subject = UserSubject(name, current_chapter=current_chapter, total_chapters=total_chapters)
             req = subject.add_subject()
             if req["successful"]:
-                if self.subjects_table and isinstance(self.subjects_table, SubjectsTable):
-                    self.subjects_table.add_row(subject)
+                if self.subjects_container and isinstance(self.subjects_container, SubjectsContainer):
+                    self.subjects_container.add_card(subject)
                 user_subjects = self.state_manager.get_state()["user_subjects"]
                 user_subjects.append(subject)
                 self.state_manager.set_state({"user_subjects": user_subjects })
