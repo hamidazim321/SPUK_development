@@ -1,4 +1,4 @@
-from customtkinter import CTkScrollableFrame, CTkFrame, CTkLabel, CTkEntry, CTkButton
+from customtkinter import CTkScrollableFrame, CTkFrame, CTkToplevel, CTkLabel, CTkEntry, CTkButton
 from CTkMessagebox import CTkMessagebox
 from DB.Queries.user_subject import UserSubject
 
@@ -12,6 +12,7 @@ class SubjectsPage(CTkScrollableFrame):
         self.state_manager.set_state({"user_subjects": self.user_subjects})
         self.state = self.state_manager.get_state()
         self.subjects_table = None
+        self.subject_form = None
         self.load_page()
 
     def fetch_user_subjects(self):
@@ -32,51 +33,14 @@ class SubjectsPage(CTkScrollableFrame):
         self.subjects_table.grid(row=0, column=0, pady=10, sticky="nsew")
 
         # Add Subject Form
-        self.create_add_subject_form(subframe)
+        add_subject_btn = CTkButton(subframe, text="Add subject", command=self.open_subject_form)
+        add_subject_btn.grid(row=1, column=0)
 
-    def create_add_subject_form(self, master):
-        add_subject_frame = CTkFrame(master)
-        add_subject_frame.grid(row=1, column=0, pady=10)
-
-        CTkLabel(add_subject_frame, text="Add Subject").grid(row=0, column=0, columnspan=2, pady=(0, 10))
-        # Inputs
-        CTkLabel(add_subject_frame, text="Subject Name:").grid(row=1, column=0, pady=5, sticky="e")
-        subject_name_entry = CTkEntry(add_subject_frame)
-        subject_name_entry.grid(row=1, column=1, pady=5, sticky="w")
-
-        CTkLabel(add_subject_frame, text="Current Chapter:").grid(row=2, column=0, pady=5, sticky="e")
-        current_chapter_entry = CTkEntry(add_subject_frame)
-        current_chapter_entry.grid(row=2, column=1, pady=5, sticky="w")
-
-        CTkLabel(add_subject_frame, text="Total Chapters:").grid(row=3, column=0, pady=5, sticky="e")
-        total_chapters_entry = CTkEntry(add_subject_frame)
-        total_chapters_entry.grid(row=3, column=1, pady=5, sticky="w")
-
-        CTkButton(
-            add_subject_frame,
-            text="Add Subject",
-            command=lambda: self.add_subject(subject_name_entry, total_chapters_entry, current_chapter_entry)
-        ).grid(row=4, column=0, columnspan=2, pady=10)
-
-    def add_subject(self, name_entry, total_chapters_entry, current_chapter_entry):
-        try:
-            name = name_entry.get()
-            total_chapters = int(total_chapters_entry.get())
-            current_chapter = int(current_chapter_entry.get())
-
-            subject = UserSubject(name, current_chapter=current_chapter, total_chapters=total_chapters)
-            req = subject.add_subject()
-            if req["successful"]:
-                print("AD:Initial Len:", len(self.state_manager.get_state()["user_subjects"]))
-                self.subjects_table.add_row(subject)
-                self.user_subjects.append(subject)
-                self.state_manager.set_state({"user_subjects": self.user_subjects })
-                print("AD:New Len:", len(self.state_manager.get_state()["user_subjects"]))
-                CTkMessagebox(title="Subject Added", message=f"{name} Added", icon="check")
-            else:
-                CTkMessagebox(title="Error Adding Subject", message=req["message"], icon="cancel")
-        except ValueError:
-            CTkMessagebox(title="Invalid Input", message="Invalid input values.", icon="info")
+    def open_subject_form(self):
+        if self.subject_form is None or not self.subject_form.winfo_exists():
+            self.subject_form = SubjectForm(self, self.state_manager, self.subjects_table)
+        else:
+            self.subject_form.focus()
 
     def remove_subject(self, subject):
         confirm_options = ["No", "Yes delete"]
@@ -148,3 +112,62 @@ class SubjectRow(CTkFrame):
             hover_color="#ff4d4d",
             command=lambda: self.on_remove(self.subject)
         ).grid(row=0, column=4, sticky="ew")
+
+class SubjectForm(CTkToplevel):
+
+    def __init__(self, master, state_manager, subjects_table):
+        super().__init__(master)
+        self.geometry("400x300")
+        self.title = "Add a subject"
+        self.state_manager = state_manager
+        self.subjects_table = subjects_table
+        self.create_add_subject_form()
+
+    def create_add_subject_form(self):
+        add_subject_frame = CTkFrame(self)
+        add_subject_frame.pack(expand=True, fill="both")
+
+        CTkLabel(add_subject_frame, text="Add Subject").grid(row=0, column=0, columnspan=2, pady=(0, 10))
+        # Inputs
+        subject_name_entry = CTkEntry(add_subject_frame, placeholder_text="subject name")
+        subject_name_entry.grid(row=1, column=0, pady=5, sticky="ew")
+
+        current_chapter_entry = CTkEntry(add_subject_frame, placeholder_text="current_chapter")
+        current_chapter_entry.grid(row=2, column=0, pady=5, sticky="ew")
+
+        total_chapters_entry = CTkEntry(add_subject_frame, placeholder_text="total chapters")
+        total_chapters_entry.grid(row=3, column=0, pady=5, sticky="ew")
+
+        CTkButton(
+            add_subject_frame,
+            text="Add Subject",
+            command=lambda: self.add_subject(subject_name_entry, total_chapters_entry, current_chapter_entry)
+        ).grid(row=4, column=0, columnspan=2, pady=10)
+    
+    def add_subject(self, name_entry, total_chapters_entry, current_chapter_entry):
+        try:
+            name = name_entry.get()
+            total_chapters = int(total_chapters_entry.get())
+            current_chapter = int(current_chapter_entry.get())
+
+            subject = UserSubject(name, current_chapter=current_chapter, total_chapters=total_chapters)
+            req = subject.add_subject()
+            if req["successful"]:
+                if self.subjects_table and isinstance(self.subjects_table, SubjectsTable):
+                    self.subjects_table.add_row(subject)
+                user_subjects = self.state_manager.get_state()["user_subjects"]
+                user_subjects.append(subject)
+                self.state_manager.set_state({"user_subjects": user_subjects })
+                CTkMessagebox(title="Subject Added", message=f"{name} Added", icon="check")
+                self.close_form()
+            else:
+                CTkMessagebox(title="Error Adding Subject", message=req["message"], icon="cancel")
+        except ValueError:
+            CTkMessagebox(title="Invalid Input", message="Invalid input values.", icon="info")
+    
+    def close_form(self):
+        self.after(300, self.destroy)
+
+
+
+

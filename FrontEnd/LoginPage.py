@@ -18,18 +18,12 @@ class LoginPage(CTkFrame):
         label.grid(row=0, column=0, columnspan=2, pady=10)
 
         # Username frame with label and entry
-        username_label = CTkLabel(subframe, text="Username:", font=('Arial', 12))
-        username_label.grid(row=1, column=0, padx=(0, 5), pady=5, sticky="w")
-        self.username_entry = CTkEntry(subframe)
-        self.username_entry.insert(0, self.user.username)
-        self.username_entry.grid(row=1, column=1, padx=(5, 0), pady=5, sticky="ew")
+        self.username_entry = CTkEntry(subframe, placeholder_text="username")
+        self.username_entry.grid(row=1, column=0, padx=(5, 0), pady=5, sticky="ew")
 
         # Password frame with label and entry
-        password_label = CTkLabel(subframe, text="Password:", font=('Arial', 12))
-        password_label.grid(row=2, column=0, padx=(0, 5), pady=5, sticky="w")
-        self.password_entry = CTkEntry(subframe, show="*")
-        self.password_entry.insert(0, self.user.password)
-        self.password_entry.grid(row=2, column=1, padx=(5, 0), pady=5, sticky="ew")
+        self.password_entry = CTkEntry(subframe, show="*", placeholder_text="password")
+        self.password_entry.grid(row=2, column=0, padx=(5, 0), pady=5, sticky="ew")
 
         # Buttons frame
         btn_frame = CTkFrame(subframe)
