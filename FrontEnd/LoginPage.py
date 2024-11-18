@@ -46,8 +46,7 @@ class LoginPage(CTkFrame):
         if req["successful"]:
             self.state_manager.set_state({"is_logged_in": True})
         else:
-            print(req["message"])
-            CTkMessagebox.show_error(title="Error Logging in", message="Incorrect username or password")
+            CTkMessagebox(title="Error Logging in", message=req["message"], icon="cancel")
 
     def sign_up(self):
         username = self.username_entry.get()
@@ -58,5 +57,4 @@ class LoginPage(CTkFrame):
         if req["successful"]:
             self.state_manager.set_state({"is_logged_in": True, "user": self.user})
         else:
-            print(req["message"])
-            CTkMessagebox.show_error(title="Error Signing up", message="User already exists")
+            CTkMessagebox.show_error(title="Error Signing up", message=req["message"])

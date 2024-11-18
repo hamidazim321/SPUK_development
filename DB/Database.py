@@ -9,7 +9,7 @@ class Database:
     def __init__(self):
         if Database.connection is None:
             try:
-                Database.connection = sqlite3.connect("spuk.db")
+                Database.connection = sqlite3.connect("spuk.db", detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
                 Database.cursor = Database.connection.cursor()
                 Database.cursor.execute("PRAGMA foreign_keys = ON")
                 self.__create_tables()

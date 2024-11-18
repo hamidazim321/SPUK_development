@@ -37,7 +37,6 @@ class StudySession(Database):
             if self.start_time and self.end_time:
                 self.duration_mins = (self.end_time - self.start_time).seconds // 60
                 try:
-                    # Insert session details into study_sessions
                     self.cursor.execute(
                         '''
                         INSERT INTO study_sessions (user_id, subject_id, start_time, end_time, duration_mins) 
@@ -48,7 +47,6 @@ class StudySession(Database):
                     )
                     self.id = self.cursor.lastrowid
 
-                    # Update total studied time for the subject
                     self.cursor.execute(
                         '''
                         UPDATE user_subjects 
@@ -79,15 +77,22 @@ class StudySession(Database):
                     SELECT id, start_time, end_time, duration_mins, subject_id
                     FROM study_sessions
                     WHERE user_id = ?
+                    ORDER BY start_time DESC
                     ''',
                     (self.current_user.id,)
                 )
                 sessions = self.cursor.fetchall()
                 sessions_list = []
-                for s in sessions:
-                    session = StudySession(s[4], s[1], s[2], s[3])
-                    session.id = s[0]
-                    sessions_list.append(session)
+                if sessions:
+                    for s in sessions:
+                        session = StudySession(
+                            s[4],
+                            datetime.datetime.strptime(s[1], "%Y-%m-%d %H:%M:%S.%f"),
+                            datetime.datetime.strptime(s[2], "%Y-%m-%d %H:%M:%S.%f"),
+                            s[3]
+                        )
+                        session.id = s[0]
+                        sessions_list.append(session)
                 
                 return {"successful": True, "sessions": sessions_list}
             except Exception as e:

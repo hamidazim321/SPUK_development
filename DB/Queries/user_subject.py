@@ -127,6 +127,30 @@ class UserSubject(Database):
         else:
             return {"successful": False, "message": "user not found"}
     
+    def get_subject_to_id(self):
+        """
+        Returns a dictionary mapping subject IDs to subject names for the current user.
+        """
+        if self.current_user:
+            try:
+
+                self.cursor.execute(
+                    '''
+                    SELECT id, subject_name FROM user_subjects
+                    WHERE user_id = ?
+                    ''',
+                    (self.current_user.id,)
+                )
+                subjects = self.cursor.fetchall()
+                
+                subject_to_id = {row[0]: row[1] for row in subjects}
+                return {"successful": True, "subjects": subject_to_id}
+            except Exception as e:
+                return {"successful": False, "message": str(e)}
+        else:
+            return {"successful": False, "message": "user not found"}
+
+    
     def __eq__(self, other):
         if not isinstance(other, UserSubject):
             return NotImplemented
