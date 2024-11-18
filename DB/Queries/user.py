@@ -55,7 +55,11 @@ class User(Database):
             }
         except Exception as e:
             self.connection.rollback()
-            print('Error creating user:', e)
+            if str(e) == "UNIQUE constraint failed: users.username":
+                return {
+                "successful": False,
+                "message": "Username already exists"
+                }
             return {
                 "successful": False,
                 "message": str(e)

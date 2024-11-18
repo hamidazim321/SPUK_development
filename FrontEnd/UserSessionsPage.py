@@ -21,6 +21,8 @@ class SessionsPage(CTkScrollableFrame):
     
     def update_user_subjects(self, state):
       self.user_subjects_to_id = self.fetch_user_subject_to_id()
+      if self.session_table:
+        self.session_table.user_subjects_to_id = self.user_subjects_to_id
 
     def update_session_table(self, state):
       new_session = None

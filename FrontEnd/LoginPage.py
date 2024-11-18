@@ -57,4 +57,4 @@ class LoginPage(CTkFrame):
         if req["successful"]:
             self.state_manager.set_state({"is_logged_in": True, "user": self.user})
         else:
-            CTkMessagebox.show_error(title="Error Signing up", message=req["message"])
+            CTkMessagebox(title="Error Signing up", message=req["message"], icon="cancel")

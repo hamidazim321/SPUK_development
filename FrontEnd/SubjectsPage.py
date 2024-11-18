@@ -151,8 +151,12 @@ class SubjectForm(CTkToplevel):
     def add_subject(self, name_entry, total_chapters_entry, current_chapter_entry):
         try:
             name = name_entry.get()
-            total_chapters = int(total_chapters_entry.get())
-            current_chapter = int(current_chapter_entry.get())
+            total_chapters = total_chapters_entry.get()
+            current_chapter = current_chapter_entry.get()
+            error = SubjectInputValidation.check_subject_input(name, current_chapter, total_chapters)
+            if error:
+                CTkMessagebox(title="Incorrect Input", message=error, icon="info")
+                return
             subject = UserSubject(name, current_chapter=current_chapter, total_chapters=total_chapters)
             req = subject.add_subject()
             if req["successful"]:
@@ -171,6 +175,37 @@ class SubjectForm(CTkToplevel):
     def close_form(self):
         self.after(300, self.destroy)
 
-
-
-
+# Input Validation
+class SubjectInputValidation:
+    @staticmethod
+    def __check_current_total_chapters(current_chapter, total_chapters):
+        try:
+            current_chapter = int(current_chapter)
+            total_chapters = int(total_chapters)
+        except ValueError:
+            return "current chapter and total chapters must be valid integers"
+        
+        if not current_chapter or not total_chapters:
+            return "current chapter and total chapters must be entered"
+        elif current_chapter > total_chapters:
+            return "current chapter must be smaller than total chapters"
+        else:
+            return None
+    
+    @staticmethod
+    def __check_subject_name(name):
+        if not name:
+            return "subject name must be entered"
+        else:
+            return None
+    
+    @staticmethod
+    def check_subject_input(name, current_chapter, total_chapters):
+        error = SubjectInputValidation.__check_subject_name(name)
+        if error:
+            return error
+        error = SubjectInputValidation.__check_current_total_chapters(current_chapter, total_chapters)
+        if error:
+            return error
+        else:
+            return None
