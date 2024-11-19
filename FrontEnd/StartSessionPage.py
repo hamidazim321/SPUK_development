@@ -38,8 +38,8 @@ class StartSessionPage(CTkFrame):
         self.state = state
         self.user_subjects = self.state["user_subjects"]
         self.subject_options = [f"{subject.subject_name}({subject.id})" for subject in self.user_subjects]
-        if self.subjects_selector:
-            self.subjects_selector.configure(values=self.subject_options)
+        # if self.subjects_selector:
+        #     self.subjects_selector.configure(values=self.subject_options)
 
     def load_page(self):
         subframe = CTkFrame(self)

@@ -11,10 +11,6 @@ class SessionsPage(CTkScrollableFrame):
         self.session_table = None
         self.load_page()
 
-    def destroy(self):
-        self.state_manager.unsubscribe(self)
-        super().destroy()
-
     def load_page(self):
         self.session_table = SessionsTable(self, self.state_manager)
         self.session_table.pack()
@@ -43,6 +39,10 @@ class SessionsTable(CTkFrame):
         
         for row_idx, session in enumerate(self.user_sessions, 1):
             self.__add_session(session, row_idx)
+    
+    def destroy(self):
+        self.state_manager.unsubscribe(self)
+        super().destroy()
     
     def __update_session_table(self, state):
         new_session = None
