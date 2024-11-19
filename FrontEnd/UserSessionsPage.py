@@ -20,23 +20,25 @@ class SessionsPage(CTkScrollableFrame):
         self.load_page()
     
     def update_user_subjects(self, state):
-      self.user_subjects_to_id = self.fetch_user_subject_to_id()
-      if self.session_table:
-        self.session_table.user_subjects_to_id = self.user_subjects_to_id
+        self.user_subjects_to_id = self.fetch_user_subject_to_id()
+        if self.session_table:
+            self.session_table.user_subjects_to_id = self.user_subjects_to_id
 
     def update_session_table(self, state):
-      new_session = None
-      if state["user_sessions"]:
-          new_session = state["user_sessions"][-1]
-      if new_session:
-          if self.session_table:
-              for widget in self.session_table.winfo_children():
-                  info = widget.grid_info()
-                  if info["row"] > 0:
+        new_session = None
+        if state["user_sessions"]:
+            new_session = state["user_sessions"][-1]
+        if new_session:
+            if self.session_table:
+                print("session table exists")
+                for widget in self.session_table.winfo_children():
+                    info = widget.grid_info()
+                    if info["row"] == 0:
+                        continue
                     widget.grid(row=info["row"] + 1, column=info["column"])
-              self.session_table.add_session(new_session, 1)
+                self.session_table.add_session(new_session, 1)
 
-              self.session_table.user_sessions.insert(0, new_session)
+                self.session_table.user_sessions.insert(0, new_session)
 
     def destroy(self):
         self.state_manager.unsubscribe(self)
@@ -66,9 +68,8 @@ class SessionsPage(CTkScrollableFrame):
             
 
     def load_page(self):
-        if self.user_sessions and self.user_subjects_to_id:
-            self.session_table = SessionsTable(self, self.user_sessions, self.user_subjects_to_id)
-            self.session_table.pack()
+        self.session_table = SessionsTable(self, self.user_sessions, self.user_subjects_to_id)
+        self.session_table.pack()
   
 
 # Dynamic components

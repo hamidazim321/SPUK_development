@@ -9,7 +9,6 @@ from DB.Queries.study_session import StudySession
 class StartSessionPage(CTkFrame):
     def __init__(self, master, state_manager):
         super().__init__(master)
-        self.initial_load = False
         self.state_manager = state_manager
         self.state = self.state_manager.get_state()
         self.set_global_session()
@@ -73,6 +72,9 @@ class StartSessionPage(CTkFrame):
         self.timer.pack()
 
     def start_session(self):
+        if len(self.user_subjects) == 0:
+            CTkMessagebox(title="No Subjects", message="Add a subject to start a session", icon="info")
+            return
         self.current_session.start_session()
         self.timer.start_timer()
         self.state_manager.set_state({"current_session": self.current_session})
