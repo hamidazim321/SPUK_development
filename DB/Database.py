@@ -79,10 +79,8 @@ class Database:
                 user_id INTEGER NOT NULL,
                 due_date DATE NOT NULL,
                 achieved INTEGER NOT NULL DEFAULT 0,
-                expired INTEGER NOT NULL DEFAULT 0,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                CHECK(achieved IN (0, 1)),
-                CHECK(expired IN (0, 1))
+                CHECK(achieved IN (0, 1))
             )
             """)
             self.connection.commit()

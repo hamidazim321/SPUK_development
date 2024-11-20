@@ -160,8 +160,8 @@ class SubjectCard(CTkFrame):
             
     def update_card(self, subject):
         self.name_label.configure(text=subject.subject_name)
-        self.chapters_label.configure(text=subject.total_chapters)
-        self.current_chapter_label.configure(text=subject.current_chapter)
+        self.chapters_label.configure(text=f"Chapters: {subject.total_chapters}")
+        self.current_chapter_label.configure(text=f"Current: {subject.current_chapter}")
         self.on_update(subject)
 
 class AddSubjectForm(CTkToplevel):
