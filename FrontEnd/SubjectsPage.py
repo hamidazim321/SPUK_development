@@ -167,13 +167,13 @@ class SubjectCard(CTkFrame):
 class AddSubjectForm(CTkToplevel):
     def __init__(self, master, on_add):
         super().__init__(master)
+        self.title("Add a subject")
         self.geometry("400x300")
         self.on_add = on_add
 
         self.create_form()
 
     def create_form(self):
-        self.title("Add a subject")
         add_subject_frame = CTkFrame(self)
         add_subject_frame.pack(expand=True, fill="both")
 

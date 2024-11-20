@@ -8,7 +8,8 @@ class StateManager:
             "user": User("", ""),
             "user_subjects": [],
             "current_session": None,
-            "user_sessions": []
+            "user_sessions": [],
+            "user_goals": []
         }
         self.subscribers = []
 

@@ -21,6 +21,7 @@ class UserGoal(Database):
       self.achieved = achieved
       self.current_user = self.get_logged_in_user()
       self.id = None
+      self.date_format = "%d/%m/%Y"
 
   def add_goal(self) -> dict:
     """Add a new goal for the current user."""
