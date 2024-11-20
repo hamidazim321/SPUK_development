@@ -25,7 +25,7 @@ class DatePicker(ctk.CTkFrame):
         self.popup = None
         self.selected_date = None
         self.date_format = "%d/%m/%Y"
-        self.allow_manual_input = True  
+        self.allow_manual_input = False  
         
     def set_date_format(self, date_format):
         """
@@ -37,7 +37,18 @@ class DatePicker(ctk.CTkFrame):
         Sets the format in which the selected date will be displayed.
         """
         self.date_format = date_format
-                
+    
+    def set_placeholder(self, string):
+        """
+        Set the date entry placeholder.
+
+        Parameters:
+        - placeholder (str).
+        
+        Sets the entry value to placeholder string intially.
+        """
+        self.date_entry.insert(0, string)
+
     def open_calendar(self):
         """
         Open the calendar popup for date selection.
@@ -71,7 +82,7 @@ class DatePicker(ctk.CTkFrame):
         if hasattr(self, 'calendar_frame'):
             self.calendar_frame.destroy()
 
-        self.calendar_frame = ctk.CTkFrame(self.popup)
+        self.calendar_frame = ctk.CTkFrame(self.popup, fg_color="grey")
         self.calendar_frame.grid(row=0, column=0)
 
         # Month and Year Selector
