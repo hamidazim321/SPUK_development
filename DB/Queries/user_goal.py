@@ -1,4 +1,6 @@
+from datetime import datetime
 from DB.Database import Database
+
 
 class UserGoal(Database):
   # Schema(
@@ -35,7 +37,6 @@ class UserGoal(Database):
             (self.title, self.description, self.current_user.id, self.due_date, self.achieved)
         )
         self.commit()
-
         self.id = self.cursor.lastrowid
 
         return {"successful": True}
@@ -83,6 +84,8 @@ class UserGoal(Database):
         goals = self.cursor.fetchall()
         goals_list = []
         for g in goals:
+          formatted_date = datetime.strptime(g[3], '%Y-%m-%d').strftime(self.date_format)
+          goal = UserGoal(g[1], g[2], formatted_date, g[4])
           goal = UserGoal(g[1], g[2], g[3], g[4])
           goal.id = g[0]
           goals_list.append(goal)
