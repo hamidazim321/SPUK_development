@@ -84,8 +84,7 @@ class UserGoal(Database):
         goals = self.cursor.fetchall()
         goals_list = []
         for g in goals:
-          formatted_date = datetime.strptime(g[3], '%Y-%m-%d').strftime(self.date_format)
-          goal = UserGoal(g[1], g[2], formatted_date, g[4])
+          goal = UserGoal(g[1], g[2], g[3], g[4])
           goal = UserGoal(g[1], g[2], g[3], g[4])
           goal.id = g[0]
           goals_list.append(goal)
@@ -119,3 +118,19 @@ class UserGoal(Database):
     else:
         print("User or goal not found")
         return {"successful": False, "message": "User or goal not found"}
+
+  def toggle_achieved(self):
+    try:
+      self.achieved = 1 if self.achieved == 0 else 0
+      self.cursor.execute(
+        '''
+        UPDATE user_goals
+        set achieved = ?
+        WHERE id = ?
+        ''',
+        (self.achieved, self.id)
+      )
+      self.connection.commit()
+      return {"successful": True}
+    except Exception as e:
+      return {"successful": False, "message": str(e)}
