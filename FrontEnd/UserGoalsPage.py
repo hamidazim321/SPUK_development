@@ -25,7 +25,7 @@ class GoalsPage(CTkScrollableFrame):
         else:
             CTkMessagebox(title="Error fetching goals", message=req["message"], icon="cancel")
             return []
-    
+
     def add_goal(self, goal:UserGoal):
         current_goals = self.state_manager.get_state()["user_goals"]
         current_goals.append(goal)
@@ -40,7 +40,7 @@ class GoalsPage(CTkScrollableFrame):
                 current_goals.pop(idx)
                 self.state_manager.set_state({"user_goals": current_goals})
                 break
-        
+
     def open_add_subject_form(self):
         if self.add_goal_form is None or not self.add_goal_form.winfo_exists():
             self.add_goal_form = AddGoalForm(self, self.add_goal)
@@ -124,6 +124,7 @@ class GoalCard(CTkFrame):
         CTkButton(
             self,
             text="Update",
+            command=self.__open_update_goal_form
         ).grid(row=3, column=0, padx=10, pady=5)
 
         CTkButton(
@@ -170,6 +171,10 @@ class GoalCard(CTkFrame):
             self.goal.remove_goal()
             self.destroy()
 
+    def __update_card(self):
+        print("card updated")
+        self.__load_card()
+
     def __toggle_achieved(self):
         self.goal.toggle_achieved()
         self.__set_card_status()
@@ -186,6 +191,16 @@ class GoalCard(CTkFrame):
         else:
             raise TypeError("Invalid due_date format")
 
+    def __open_update_goal_form(self):
+        if self.update_goal_form is None or not self.update_goal_form.winfo_exists():
+            self.update_goal_form = UpdateGoalForm(
+                self, 
+                goal=self.goal, 
+                on_update=self.__update_card, 
+                current_formatted_date=self.__get_formatted_date()
+            )
+        else:
+            self.update_goal_form.focus()
 
 class GoalForm(CTkToplevel):
     def __init__(self, master, btn_text):
@@ -249,13 +264,34 @@ class AddGoalForm(GoalForm):
         return
 
 class UpdateGoalForm(GoalForm):
-    def __init__(self, master, goal:UserGoal, on_update):
+    def __init__(self, master, goal:UserGoal, on_update, current_formatted_date:str):
         super().__init__(master, btn_text="Update Goal")
+        self.title("Update goal")
         self.goal = goal
         self.on_update = on_update
-    def execute_form(self):
-        print("update goal", self.goal.title)
+        
+        self.title_entry.delete(0, "end")
+        self.title_entry.insert(0, self.goal.title)
 
+        self.description_box.delete("1.0", "end")
+        self.description_box.insert("1.0", self.goal.description)
+
+        self.date_picker.set_placeholder(current_formatted_date)
+    def execute_form(self):
+        date_error = self.check_date(self.date_picker.get_date())
+        if date_error:
+            CTkMessagebox(title="Incorrect date format", message=date_error, icon="cancel")
+            return
+        self.goal.title = self.title_entry.get()
+        self.goal.description = self.description_box.get("0.0", "end").strip()
+        self.goal.due_date = datetime.strptime(self.date_picker.get_date(), self.date_picker.date_format).date()
+
+        req = self.goal.update_goal()
+        if req["successful"]:
+            self.on_update()
+            self.close_form()
+        else:
+            CTkMessagebox(title="Error", message=req["message"], icon="cancel")
         
 
 

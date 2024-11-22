@@ -47,6 +47,7 @@ class DatePicker(ctk.CTkFrame):
         
         Sets the entry value to placeholder string intially.
         """
+        self.date_entry.delete(0, "end")
         self.date_entry.insert(0, string)
 
     def open_calendar(self):
