@@ -125,7 +125,8 @@ class SubjectCard(CTkFrame):
         self.chapters_label.grid(row=1, column=0, sticky="ew", padx=5, pady=2)
         self.current_chapter_label = CTkLabel(self, text=f"Current: {subject.current_chapter}", anchor="w")
         self.current_chapter_label.grid(row=2, column=0, sticky="ew", padx=5, pady=2)
-        CTkLabel(self, text=f"Minutes: {subject.studied_mins}", anchor="w").grid(row=3, column=0, sticky="ew", padx=5, pady=2)
+        hours, minutes = divmod(self.subject.studied_mins, 60)
+        CTkLabel(self, text=f"Studied: {hours} hours, {minutes} minutes", anchor="w").grid(row=3, column=0, sticky="ew", padx=5, pady=2)
         
         # Remove and update button
         btns_frame = CTkFrame(self)

@@ -11,7 +11,7 @@ class App(CTk):
     def __init__(self):
         super().__init__()
         self.title("Sabaq pa Usul Ke")
-        self.geometry('600x600')
+        self.geometry('900x600')
 
         # State Management
         self.state_manager = StateManager()
