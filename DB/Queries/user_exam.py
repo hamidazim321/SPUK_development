@@ -1,6 +1,6 @@
 from DB.Database import Database
 
-class UserExams(Database):
+class UserExam(Database):
   # Schema(
   #   id INTEGER PRIMARY KEY AUTOINCREMENT,
   #   user_id INTEGER NOT NULL,
@@ -77,15 +77,13 @@ class UserExams(Database):
             (self.current_user.id,)
         )
         exams = self.cursor.fetchall()
-        exams_list = [
-            {
-                "id": e[0],
-                "title": e[1],
-                "exam_date": e[2],
-                "subject_id": e[3]
-            }
-            for e in exams
-        ]
+        exams_list = []
+
+        for e in exams:
+          exam = UserExam(e[1], e[2], e[3])
+          exam.id = e[0]
+          exams_list.append(exam)
+
         return {"successful": True, "exams": exams_list}
       except Exception as e:
         print("Error fetching exams:", str(e))

@@ -9,7 +9,8 @@ class StateManager:
             "user_subjects": [],
             "current_session": None,
             "user_sessions": [],
-            "user_goals": []
+            "user_goals": [],
+            "user_exams": []
         }
         self.subscribers = []
 
@@ -30,7 +31,11 @@ class StateManager:
                 try:
                     subscriber["callback"](self.__state.copy())
                 except Exception as e:
-                    print(f"Error notifying callback: {e}")
+                    print(f'''
+                    [State Manager] Error notifying callback: {e}
+                    Context: {type(subscriber["context"])}
+                    Callback: {subscriber["callback"]}
+                    ''')
 
     def set_state(self, new_state: dict):
         changed_attributes = []
