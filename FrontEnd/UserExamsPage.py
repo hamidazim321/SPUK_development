@@ -18,13 +18,11 @@ class ExamsPage(CTkScrollableFrame):
     self.load_page()
 
   def fetch_user_subject_to_id(self):
-    subject = UserSubject("")
-    req = subject.get_subject_to_id()
-    if req["successful"]:
-        return req["subjects"]
-    else:
-        CTkMessagebox(title="Error fetching subjects", message=req["message"], icon="cancel")
-        return {}
+    subjects_to_id = {}
+    subjects = self.state_manager.get_state()["user_subjects"]
+    for s in subjects:
+      subjects_to_id[s.id] = s.subject_name
+    return subjects_to_id
   
   def fetch_user_exams(self):
     exam = UserExam()
