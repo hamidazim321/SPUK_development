@@ -14,8 +14,13 @@ class ExamsPage(CTkScrollableFrame):
     self.user_exams = self.fetch_user_exams()
     self.state_manager.set_state({"user_exams": self.user_exams})
     self.add_exam_form = None
-    self.exams_container = ExamsContainer(self, self.user_exams, self.subjects_to_id)
+    self.exams_container = ExamsContainer(self, self.user_exams, self.subjects_to_id, on_remove_card=self.remove_exam)
     self.load_page()
+
+    self.state_manager.subscribe(self.update_subjects_to_id, ["user_subjects"], self)
+
+  def update_subjects_to_id(self, state):
+    self.subjects_to_id = self.fetch_user_subject_to_id()
 
   def fetch_user_subject_to_id(self):
     subjects_to_id = {}
@@ -44,14 +49,25 @@ class ExamsPage(CTkScrollableFrame):
     self.state_manager.set_state({"user_exam": current_exams})
     self.exams_container.add_card(exam=exam)
   
+  
+  def remove_exam(self, exam):
+    req = exam.remove_exam()
+    if req["successful"]:
+      user_exams = self.state_manager.get_state()["user_exams"]
+      user_exams = [e for e in user_exams if e.id != exam.id]
+      self.state_manager.set_state({"user_exams": user_exams})
+    else:
+      CTkMessagebox(title="error deleting exam", message=req["message"], icon="cancel")
+  
   def load_page(self):
     self.exams_container.grid(row=0, column=0, sticky="nsew")
     CTkButton(self, text="Add exam", command=self.open_add_exam_form).grid(row=1, column=0)
 
 class ExamsContainer(CTkFrame):
-  def __init__(self, master, user_exam, subjects_to_id):
+  def __init__(self, master, user_exam, subjects_to_id, on_remove_card):
     super().__init__(master)
     self.user_exam = user_exam
+    self.on_remove_card = on_remove_card
     self.subjects_to_id = subjects_to_id
     self.exams_cards = [] #tuple of (exam, card)
   
@@ -60,15 +76,32 @@ class ExamsContainer(CTkFrame):
 
   def add_card(self, exam):
     row = len(self.exams_cards)
-    card = ExamCard(self, exam=exam, subjects_to_id=self.subjects_to_id)
+    card = ExamCard(self, exam=exam, subjects_to_id=self.subjects_to_id, on_remove=self.__remove_card)
     card.grid(row=row, column=0, sticky="nsew")
     self.exams_cards.append((exam, card))
+  
+  def __remove_card(self, exam):
+    confirm_options = ["No", "Yes delete"]
+    confirmation = CTkMessagebox(
+        title="Delete Exam?",
+        message=f"Are you sure you want to delete the exam?",
+        icon="question",
+        options=confirm_options
+    )
+    if confirmation.get() == confirm_options[1]:
+      for idx, (e, card) in enumerate(self.exams_cards):
+        if e.id == exam.id:
+          card.destroy()
+          self.exams_cards.pop(idx)
+          break
+      self.on_remove_card(exam)
 
 class ExamCard(CTkFrame):
-  def __init__(self, master, exam, subjects_to_id):
+  def __init__(self, master, exam, subjects_to_id, on_remove):
     super().__init__(master)
     self.exam = exam
     self.subjects_to_id = subjects_to_id
+    self.on_remove = on_remove
 
     self.configure(fg_color="#f5f5f5", corner_radius=10, border_width=1, border_color="#d3d3d3")
 
@@ -88,7 +121,15 @@ class ExamCard(CTkFrame):
     self.subject_label.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
     self.exam_date_label.grid(row=2, column=0, sticky="ew", padx=10, pady=5)
     self.remaining_days_label.grid(row=3, column=0, sticky="ew", padx=10, pady=5)
-  
+    
+    CTkButton(
+      self,
+      text="Remove",
+      fg_color="red",
+      hover_color="#ff4d4d",
+      command=lambda: self.on_remove(self.exam)
+    ).grid(row=4, column=0, sticky="ew", padx=10, pady=5)
+
   def __load_data(self):
     subject = self.subjects_to_id.get(self.exam.subject_id, "Unknown")
     exam_date = self.__get_formatted_date()
@@ -97,7 +138,7 @@ class ExamCard(CTkFrame):
     self.subject_label.configure(text=f"Subject: {subject}")
     self.exam_date_label.configure(text=f"Exam date: {exam_date}")
     self.remaining_days_label.configure(text=f"Remaining days: {remaining_days}")
-  
+
   def __get_formatted_date(self):
     """Returns the date in dd/mm/yyyy format as a string."""
     if isinstance(self.exam.exam_date, str):
