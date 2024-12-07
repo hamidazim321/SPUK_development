@@ -9,11 +9,38 @@ class SessionsPage(CTkScrollableFrame):
         super().__init__(master)
         self.state_manager = state_manager
         self.session_table = None
+        self.session_average = self.get_session_average()
+        self.day_average = self.get_day_average()
+
         self.load_page()
 
+    def get_session_average(self):
+        session = StudySession()
+        req = session.get_average_session_duration()
+        if req["successful"]:
+            average_mins = req["average_mins"]
+            print(average_mins)
+            hours, minutes = divmod(average_mins, 60)
+            return f"{int(hours)} hours, {int(minutes)} mins"
+        else:
+            return "N/A"
+    
+    def get_day_average(self):
+        session = StudySession()
+        req = session.get_average_duration_per_day()
+        if req["successful"]:
+            average_mins = req["average_mins"]
+            print(average_mins)
+            hours, minutes = divmod(average_mins, 60)
+            return f"{int(hours)} hours, {int(minutes)} mins"
+        else:
+            return "N/A"
+
     def load_page(self):
+        CTkLabel(self, text=f"Average session duration: {self.session_average}", font=("Arial", 16, "bold")).grid(row=0, column=0, sticky="nsew", padx=10, pady=5)
+        CTkLabel(self, text=f"Average study duration per day: {self.day_average}", font=("Arial", 16, "bold")).grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
         self.session_table = SessionsTable(self, self.state_manager)
-        self.session_table.pack()
+        self.session_table.grid(row=3, column=0, sticky="nsew", padx=10, pady=5)
   
 
 # Dynamic components

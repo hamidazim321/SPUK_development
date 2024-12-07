@@ -99,3 +99,41 @@ class StudySession(Database):
                 return {"successful": False, "message": str(e)}
         else:
             return {"successful": False, "message": "user not found"}
+    
+    def get_average_session_duration(self):
+        if self.current_user:
+            try:
+                self.cursor.execute(
+                    '''
+                    SELECT AVG(duration_mins) 
+                    FROM study_sessions
+                    WHERE user_id = ?
+                    ''',
+                    (self.current_user.id,)
+                )
+                result = self.cursor.fetchone()
+                duration = result[0] if result and result[0] is not None else 0 
+                return {"successful": True, "average_mins": duration}
+            except Exception as e:
+                return {"successful": False, "message": str(e)}
+        else:
+            return {"successful": False, "message": "No user is logged in."}
+    
+    def get_average_duration_per_day(self):
+        if self.current_user:
+            try:
+                self.cursor.execute(
+                    '''
+                    SELECT SUM(duration_mins) * 1.0 / COUNT(DISTINCT DATE(start_time))
+                    FROM study_sessions
+                    WHERE user_id = ?
+                    ''',
+                    (self.current_user.id,) 
+                )
+                result = self.cursor.fetchone()
+                duration = result[0] if result and result[0] is not None else 0 
+                return {"successful": True, "average_mins": duration}
+            except Exception as e:
+                return {"successful": False, "message": f"An error occurred: {str(e)}"}
+        else:
+            return {"successful": False, "message": "No user is logged in."}
