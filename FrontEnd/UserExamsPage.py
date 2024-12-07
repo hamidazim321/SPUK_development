@@ -189,15 +189,15 @@ class AddExamForm(CTkToplevel):
 
     self.__create_form()
   def __create_form(self):
-        self.title_entry.grid(row=0, column=0, sticky="ew", padx=10)
+        self.title_entry.grid(row=0, column=0, sticky="ew",  padx=10, pady=5)
 
         self.subjects_selector.set("select subject")
-        self.subjects_selector.grid(row=1, column=0, sticky="ew")
+        self.subjects_selector.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
 
         self.date_picker.set_placeholder("Select due date")
-        self.date_picker.grid(row=2, column=0, sticky="ew")
+        self.date_picker.grid(row=2, column=0, sticky="ew", padx=10, pady=5)
 
-        self.btn.grid(row=3, column=0) 
+        self.btn.grid(row=3, column=0, padx=10, pady=5) 
   
   def __add_exam(self):
     title = self.title_entry.get()
