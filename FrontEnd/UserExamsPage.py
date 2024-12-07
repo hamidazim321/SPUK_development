@@ -70,6 +70,8 @@ class ExamsContainer(CTkFrame):
     self.on_remove_card = on_remove_card
     self.subjects_to_id = subjects_to_id
     self.exams_cards = [] #tuple of (exam, card)
+
+    self.columnconfigure([0, 1, 2, 3], weight=1) 
   
     for e in self.user_exam:
       self.add_card(exam=e)
@@ -77,7 +79,8 @@ class ExamsContainer(CTkFrame):
   def add_card(self, exam):
     row = len(self.exams_cards)
     card = ExamCard(self, exam=exam, subjects_to_id=self.subjects_to_id, on_remove=self.__remove_card)
-    card.grid(row=row, column=0, sticky="nsew")
+    row, col = divmod(len(self.exams_cards), 4) 
+    card.grid(row=row, column=col, sticky="nsew", padx=10, pady=5)
     self.exams_cards.append((exam, card))
   
   def __remove_card(self, exam):
@@ -95,6 +98,12 @@ class ExamsContainer(CTkFrame):
           self.exams_cards.pop(idx)
           break
       self.on_remove_card(exam)
+      self.__rearrange_cards()
+  
+  def __rearrange_cards(self):
+    for idx, (e, card) in enumerate(self.exams_cards):
+      row, col = divmod(idx, 4)
+      card.grid(row=row, column=col, sticky="nsew", padx=10, pady=5)
 
 class ExamCard(CTkFrame):
   def __init__(self, master, exam, subjects_to_id, on_remove):
@@ -155,6 +164,8 @@ class ExamCard(CTkFrame):
     current_date = datetime.now().date()
     exam_date = datetime.strptime(self.__get_formatted_date(), "%d/%m/%Y").date()
     remaining_days = (exam_date - current_date).days
+    if remaining_days < 0:
+      return 0
     return remaining_days
 
 
