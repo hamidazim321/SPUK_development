@@ -12,9 +12,9 @@ class ExamsPage(CTkScrollableFrame):
     self.state_manager = state_manager
     self.subjects_to_id = self.fetch_user_subject_to_id()
     self.user_exams = self.fetch_user_exams()
-    # self.state_manager.set_state({"user_exams": self.user_exams})
+    self.state_manager.set_state({"user_exams": self.user_exams})
     self.add_exam_form = None
-
+    self.exams_container = ExamsContainer(self, self.user_exams, self.subjects_to_id)
     self.load_page()
 
   def fetch_user_subject_to_id(self):
@@ -36,20 +36,35 @@ class ExamsPage(CTkScrollableFrame):
   
   def open_add_exam_form(self):
     if self.add_exam_form is None or not self.add_exam_form.winfo_exists():
-      self.add_exam_form = AddExamForm(master=self, subjects_to_id=self.subjects_to_id)
+      self.add_exam_form = AddExamForm(master=self, subjects_to_id=self.subjects_to_id, on_add=self.add_exam)
     else:
       self.add_exam_form.focus()
   
+  def add_exam(self, exam):
+    current_exams = self.state_manager.get_state()["user_exams"]
+    current_exams.append(exam)
+    self.state_manager.set_state({"user_exam": current_exams})
+    self.exams_container.add_card(exam=exam)
+  
   def load_page(self):
-    for row, e in enumerate(self.user_exams):
-      ExamCard(self, e, self.subjects_to_id).pack()
-    CTkButton(self, text="Add exam", command=self.open_add_exam_form).pack()
+    self.exams_container.grid(row=0, column=0, sticky="nsew")
+    CTkButton(self, text="Add exam", command=self.open_add_exam_form).grid(row=1, column=0)
 
 class ExamsContainer(CTkFrame):
-  def __init__(self, master, subjects_to_id):
+  def __init__(self, master, user_exam, subjects_to_id):
     super().__init__(master)
+    self.user_exam = user_exam
     self.subjects_to_id = subjects_to_id
-    self.cards = []
+    self.exams_cards = [] #tuple of (exam, card)
+  
+    for e in self.user_exam:
+      self.add_card(exam=e)
+
+  def add_card(self, exam):
+    row = len(self.exams_cards)
+    card = ExamCard(self, exam=exam, subjects_to_id=self.subjects_to_id)
+    card.grid(row=row, column=0, sticky="nsew")
+    self.exams_cards.append((exam, card))
 
 class ExamCard(CTkFrame):
   def __init__(self, master, exam, subjects_to_id):
@@ -105,11 +120,12 @@ class ExamCard(CTkFrame):
 
 
 class AddExamForm(CTkToplevel):
-  def __init__(self, master, subjects_to_id):
+  def __init__(self, master, subjects_to_id, on_add):
     super().__init__(master)
     self.title("Add exam")
     self.geometry("400x300")
     self.subjects_to_id = subjects_to_id
+    self.on_add = on_add
 
     self.subject_options = [
       f"{name}({id})" 
@@ -151,9 +167,15 @@ class AddExamForm(CTkToplevel):
     exam = UserExam(title=title, exam_date=due_date, subject_id=subject_id)
     req = exam.add_exam()
     if req["successful"]:
-      print("Exam added")
+      self.on_add(exam)
+      CTkMessagebox( 
+        title="Exam Added", 
+        message=f"Your exam date for {exam.title} is {self.date_picker.get_date()}", 
+        icon="check"
+        )
+      self.__close_form()
     else:
-      print(req["message"])
+      CTkMessagebox(title="Error adding exam", message=req["message"], icon="cancel")
 
 
   def __check_date(self,date):
@@ -171,6 +193,6 @@ class AddExamForm(CTkToplevel):
     else:
       return None
 
-  def close_form(self):
+  def __close_form(self):
         self.after(300, self.destroy)
     
